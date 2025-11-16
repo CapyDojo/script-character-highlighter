@@ -17,8 +17,22 @@
         .subtitle { color: #6b7280; margin-bottom: 1.5rem; }
         .form-group { margin-bottom: 1.5rem; }
         label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem; }
-        input[type="file"] { display: block; width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; cursor: pointer; }
-        input[type="file"]:hover { background: #f3f4f6; }
+        .dropzone {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f9fafb;
+        }
+        .dropzone:hover { border-color: #3b82f6; background: #eff6ff; }
+        .dropzone.drag-over { border-color: #3b82f6; background: #dbeafe; }
+        .dropzone-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+        .dropzone-text { color: #6b7280; font-size: 0.875rem; }
+        .dropzone-text strong { color: #3b82f6; }
+        .file-info { margin-top: 0.5rem; padding: 0.75rem; background: #f0fdf4; border-radius: 0.5rem; color: #166534; font-size: 0.875rem; }
+        input[type="file"] { display: none; }
         select { display: block; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; }
         select:focus { outline: none; border-color: #3b82f6; ring: 2px; ring-color: #3b82f6; }
         button { width: 100%; background: #3b82f6; color: white; padding: 0.75rem 1rem; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
@@ -37,7 +51,7 @@
     <div id="root"></div>
     
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useRef } = React;
 
         function App() {
             const [file, setFile] = useState(null);
@@ -47,6 +61,8 @@
             const [processing, setProcessing] = useState(false);
             const [status, setStatus] = useState('');
             const [statusType, setStatusType] = useState('success');
+            const [isDragging, setIsDragging] = useState(false);
+            const fileInputRef = useRef(null);
 
             const parseDocx = async (file) => {
                 setProcessing(true);
@@ -88,8 +104,7 @@
                 }
             };
 
-            const handleFileUpload = (e) => {
-                const uploadedFile = e.target.files[0];
+            const processFile = (uploadedFile) => {
                 if (uploadedFile && uploadedFile.name.endsWith('.docx')) {
                     setFile(uploadedFile);
                     parseDocx(uploadedFile);
@@ -97,6 +112,41 @@
                     setStatus('Please upload a .docx file');
                     setStatusType('error');
                 }
+            };
+
+            const handleFileUpload = (e) => {
+                const uploadedFile = e.target.files[0];
+                processFile(uploadedFile);
+            };
+
+            const handleDragEnter = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragging(true);
+            };
+
+            const handleDragLeave = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragging(false);
+            };
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragging(false);
+
+                const droppedFile = e.dataTransfer.files[0];
+                processFile(droppedFile);
+            };
+
+            const handleDropzoneClick = () => {
+                fileInputRef.current.click();
             };
 
             const highlightCharacter = async () => {
@@ -221,11 +271,32 @@
                             
                             <div className="form-group">
                                 <label>Upload Script (.docx)</label>
+                                <div 
+                                    className={`dropzone ${isDragging ? 'drag-over' : ''}`}
+                                    onDragEnter={handleDragEnter}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                    onClick={handleDropzoneClick}
+                                >
+                                    <div className="dropzone-icon">📄</div>
+                                    <div className="dropzone-text">
+                                        <strong>Click to upload</strong> or drag and drop
+                                        <br />
+                                        .docx files only
+                                    </div>
+                                </div>
                                 <input
+                                    ref={fileInputRef}
                                     type="file"
                                     accept=".docx"
                                     onChange={handleFileUpload}
                                 />
+                                {file && (
+                                    <div className="file-info">
+                                        ✓ {file.name}
+                                    </div>
+                                )}
                             </div>
 
                             {characters.length > 0 && (
