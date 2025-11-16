@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Character Highlighter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+        const { Document, Packer, Paragraph, TextRun } = docx;
+
+        function App() {
+            const [file, setFile] = useState(null);
+            const [characters, setCharacters] = useState([]);
+            const [selectedCharacter, setSelectedCharacter] = useState('');
+            const [highlightColor, setHighlightColor] = useState('yellow');
+            const [processing, setProcessing] = useState(false);
+            const [status, setStatus] = useState('');
+
+            const parseDocx = async (file) => {
+                setProcessing(true);
+                setStatus('Reading document...');
+                
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const zip = await JSZip.loadAsync(arrayBuffer);
+                    const xmlContent = await zip.file('word/document.xml').async('string');
+                    
+                    // Parse XML to find character names
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+                    const textNodes = xmlDoc.getElementsByTagName('w:t');
+                    
+                    const foundCharacters = new Set();
+                    for (let i = 0; i < textNodes.length; i++) {
+                        const text = textNodes[i].textContent.trim();
+                        // Look for character names (ALL CAPS, short length, common script format)
+                        if (text.match(/^[A-Z][A-Z\s']+$/) && text.length > 2 && text.length < 50) {
+                            // Remove common script elements
+                            const cleaned = text.replace(/\s*\(CONT'?D\)\s*/gi, '').trim();
+                            if (cleaned.length > 2) {
+                                foundCharacters.add(cleaned);
+                            }
+                        }
+                    }
+                    
+                    const sortedCharacters = Array.from(foundCharacters).sort();
+                    setCharacters(sortedCharacters);
+                    setStatus(`Found ${sortedCharacters.length} potential characters`);
+                    setProcessing(false);
+                } catch (error) {
+                    setStatus(`Error reading file: ${error.message}`);
+                    setProcessing(false);
+                }
+            };
+
+            const handleFileUpload = (e) => {
+                const uploadedFile = e.target.files[0];
+                if (uploadedFile && uploadedFile.name.endsWith('.docx')) {
+                    setFile(uploadedFile);
+                    parseDocx(uploadedFile);
+                } else {
+                    setStatus('Please upload a .docx file');
+                }
+            };
+
+            const highlightCharacter = async () => {
+                if (!file || !selectedCharacter) {
+                    setStatus('Please select a file and character');
+                    return;
+                }
+
+                setProcessing(true);
+                setStatus('Processing document...');
+
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const zip = await JSZip.loadAsync(arrayBuffer);
+                    const xmlContent = await zip.file('word/document.xml').async('string');
+                    
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+                    const paragraphs = xmlDoc.getElementsByTagName('w:p');
+                    
+                    let inCharacterSection = false;
+                    let highlightedCount = 0;
+                    
+                    // Iterate through paragraphs to find and highlight character dialogue
+                    for (let i = 0; i < paragraphs.length; i++) {
+                        const para = paragraphs[i];
+                        const textNodes = para.getElementsByTagName('w:t');
+                        let paraText = '';
+                        for (let j = 0; j < textNodes.length; j++) {
+                            paraText += textNodes[j].textContent;
+                        }
+                        
+                        const trimmedText = paraText.trim();
+                        
+                        // Check if this is the selected character's name
+                        const isCharacterName = trimmedText.includes(selectedCharacter) && 
+                                              trimmedText.length < 50 &&
+                                              trimmedText.match(/^[A-Z]/);
+                        
+                        // Check if this is a different character's name
+                        const isOtherCharacter = !isCharacterName && 
+                                                trimmedText.match(/^[A-Z][A-Z\s']+$/) && 
+                                                trimmedText.length > 2 && 
+                                                trimmedText.length < 50;
+                        
+                        if (isCharacterName) {
+                            inCharacterSection = true;
+                            addHighlightToParagraph(para, xmlDoc, highlightColor);
+                            highlightedCount++;
+                        } else if (isOtherCharacter) {
+                            inCharacterSection = false;
+                        } else if (inCharacterSection && trimmedText.length > 0) {
+                            addHighlightToParagraph(para, xmlDoc, highlightColor);
+                            highlightedCount++;
+                        }
+                    }
+                    
+                    // Serialize the modified XML
+                    const serializer = new XMLSerializer();
+                    const modifiedXml = serializer.serializeToString(xmlDoc);
+                    
+                    // Update the zip file
+                    zip.file('word/document.xml', modifiedXml);
+                    
+                    // Generate the new .docx file
+                    const blob = await zip.generateAsync({ type: 'blob' });
+                    
+                    // Download the file
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.name.replace('.docx', `_${selectedCharacter}_highlighted.docx`);
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    setStatus(`Successfully highlighted ${highlightedCount} paragraphs for ${selectedCharacter}`);
+                    setProcessing(false);
+                } catch (error) {
+                    setStatus(`Error processing file: ${error.message}`);
+                    setProcessing(false);
+                }
+            };
+
+            const addHighlightToParagraph = (para, xmlDoc, color) => {
+                const runs = para.getElementsByTagName('w:r');
+                
+                for (let i = 0; i < runs.length; i++) {
+                    const run = runs[i];
+                    let rPr = run.getElementsByTagName('w:rPr')[0];
+                    
+                    if (!rPr) {
+                        rPr = xmlDoc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rPr');
+                        if (run.firstChild) {
+                            run.insertBefore(rPr, run.firstChild);
+                        } else {
+                            run.appendChild(rPr);
+                        }
+                    }
+                    
+                    // Check if highlight already exists
+                    const existingHighlight = rPr.getElementsByTagName('w:highlight')[0];
+                    if (!existingHighlight) {
+                        const highlight = xmlDoc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:highlight');
+                        highlight.setAttribute('w:val', color);
+                        rPr.appendChild(highlight);
+                    }
+                }
+            };
+
+            return (
+                <div className="min-h-screen p-8">
+                    <div className="max-w-3xl mx-auto">
+                        <div className="bg-white rounded-lg shadow-lg p-8">
+                            <h1 className="text-3xl font-bold text-gray-800 mb-2">Script Character Highlighter</h1>
+                            <p className="text-gray-600 mb-6">Upload a script and highlight a character's dialogue</p>
+                            
+                            {/* File Upload */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Upload Script (.docx)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept=".docx"
+                                    onChange={handleFileUpload}
+                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                                />
+                            </div>
+
+                            {/* Character Selection */}
+                            {characters.length > 0 && (
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Select Character
+                                    </label>
+                                    <select
+                                        value={selectedCharacter}
+                                        onChange={(e) => setSelectedCharacter(e.target.value)}
+                                        className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                        <option value="">-- Choose a character --</option>
+                                        {characters.map(char => (
+                                            <option key={char} value={char}>{char}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* Highlight Color */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Highlight Color
+                                </label>
+                                <select
+                                    value={highlightColor}
+                                    onChange={(e) => setHighlightColor(e.target.value)}
+                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="yellow">Yellow</option>
+                                    <option value="green">Green</option>
+                                    <option value="cyan">Cyan</option>
+                                    <option value="magenta">Magenta</option>
+                                    <option value="lightGray">Light Gray</option>
+                                </select>
+                            </div>
+
+                            {/* Process Button */}
+                            <button
+                                onClick={highlightCharacter}
+                                disabled={!file || !selectedCharacter || processing}
+                                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                            >
+                                {processing ? 'Processing...' : 'Highlight & Download'}
+                            </button>
+
+                            {/* Status Message */}
+                            {status && (
+                                <div className={`mt-4 p-4 rounded-lg ${
+                                    status.includes('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+                                }`}>
+                                    {status}
+                                </div>
+                            )}
+
+                            {/* Instructions */}
+                            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+                                <h3 className="font-semibold text-gray-800 mb-2">How to use:</h3>
+                                <ol className="list-decimal list-inside space-y-1 text-sm text-gray-600">
+                                    <li>Upload your script file (must be .docx format)</li>
+                                    <li>Select the character whose dialogue you want to highlight</li>
+                                    <li>Choose a highlight color</li>
+                                    <li>Click "Highlight & Download" to get your highlighted script</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
