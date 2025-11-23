@@ -9,92 +9,680 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f9fafb; }
-        .container { max-width: 48rem; margin: 0 auto; padding: 2rem; }
-        .card { background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); padding: 2rem; }
-        h1 { font-size: 1.875rem; font-weight: bold; color: #1f2937; margin-bottom: 0.5rem; }
-        .subtitle { color: #6b7280; margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0a0a0a 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+        }
+
+        .container {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(212, 175, 55, 0.2);
+            padding: 3rem;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #d4af37, #f4d03f, #d4af37);
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: #a8a8a8;
+            font-size: 1.125rem;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Dropzone */
         .dropzone {
-            border: 2px dashed #d1d5db;
-            border-radius: 0.5rem;
-            padding: 2rem;
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+            border-radius: 0.75rem;
+            padding: 3rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
-            background: #f9fafb;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(26, 26, 26, 0.5);
+            backdrop-filter: blur(10px);
         }
-        .dropzone:hover { border-color: #3b82f6; background: #eff6ff; }
-        .dropzone.drag-over { border-color: #3b82f6; background: #dbeafe; }
-        .dropzone-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-        .dropzone-text { color: #6b7280; font-size: 0.875rem; }
-        .dropzone-text strong { color: #3b82f6; }
-        .file-info { margin-top: 0.5rem; padding: 0.75rem; background: #f0fdf4; border-radius: 0.5rem; color: #166534; font-size: 0.875rem; }
+
+        .dropzone:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            background: rgba(212, 175, 55, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.1);
+        }
+
+        .dropzone.drag-over {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .dropzone-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: grayscale(1) brightness(1.5);
+        }
+
+        .dropzone-text {
+            color: #b8b8b8;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .dropzone-text strong {
+            color: #d4af37;
+            font-weight: 600;
+        }
+
+        .file-info {
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
+            border-radius: 0.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            color: #f4d03f;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
         input[type="file"] { display: none; }
-        select { display: block; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; }
-        select:focus { outline: none; border-color: #3b82f6; ring: 2px; ring-color: #3b82f6; }
-        button { width: 100%; background: #3b82f6; color: white; padding: 0.75rem 1rem; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        button:hover:not(:disabled) { background: #2563eb; }
-        button:disabled { background: #9ca3af; cursor: not-allowed; }
-        .status { margin-top: 1rem; padding: 1rem; border-radius: 0.5rem; }
-        .status.error { background: #fef2f2; color: #991b1b; }
-        .status.success { background: #f0fdf4; color: #166534; }
-        .instructions { margin-top: 2rem; padding: 1rem; background: #f9fafb; border-radius: 0.5rem; }
-        .instructions h3 { font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; }
-        .instructions ol { margin-left: 1.5rem; }
-        .instructions li { margin-top: 0.25rem; font-size: 0.875rem; color: #6b7280; }
+
+        /* Feature Flag Toggle */
+        .ui-toggle {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.375rem;
+            background: rgba(10, 10, 10, 0.6);
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .ui-toggle button {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            color: #888;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ui-toggle button.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(244, 208, 63, 0.15));
+            color: #f4d03f;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Search and Actions */
+        .search-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background: rgba(10, 10, 10, 0.5);
+            color: #e8e8e8;
+            transition: all 0.3s;
+        }
+
+        .search-box::placeholder {
+            color: #666;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: rgba(10, 10, 10, 0.7);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.25rem;
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #d4af37;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .action-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+        }
+
+        /* Character Pills (Prototype A) */
+        .character-pills {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .character-pill {
+            position: relative;
+            padding: 1.25rem 1.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(10, 10, 10, 0.8));
+            backdrop-filter: blur(10px);
+        }
+
+        .character-pill:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(10, 10, 10, 0.9));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .character-pill.selected {
+            border-color: currentColor;
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9), rgba(10, 10, 10, 0.95));
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.2), inset 0 0 20px rgba(212, 175, 55, 0.05);
+        }
+
+        .pill-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e8e8e8;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .pill-count {
+            font-size: 0.8125rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .pill-color {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pill-color:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Character Table (Prototype B) */
+        .character-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .character-table th {
+            text-align: left;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.08));
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            font-weight: 700;
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+        }
+
+        .character-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            background: rgba(26, 26, 26, 0.3);
+            color: #e8e8e8;
+        }
+
+        .character-table tr:hover td {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .character-table input[type="checkbox"] {
+            width: 1.125rem;
+            height: 1.125rem;
+            cursor: pointer;
+            accent-color: #d4af37;
+        }
+
+        .character-table select.color-select {
+            padding: 0.375rem 0.75rem;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            background: rgba(10, 10, 10, 0.5);
+            color: #d4af37;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .character-table select.color-select:hover:not(:disabled) {
+            border-color: #d4af37;
+            background: rgba(10, 10, 10, 0.7);
+        }
+
+        .character-table select.color-select:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 1.125rem;
+            height: 1.125rem;
+            border-radius: 0.25rem;
+            vertical-align: middle;
+            border: 2px solid rgba(0, 0, 0, 0.5);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Selection Summary */
+        .selection-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(244, 208, 63, 0.05));
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .summary-text {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #f4d03f;
+            letter-spacing: 0.01em;
+        }
+
+        .summary-badge {
+            padding: 0.375rem 1rem;
+            background: linear-gradient(135deg, #d4af37, #f4d03f);
+            color: #0a0a0a;
+            border-radius: 2rem;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .color-warning {
+            background: linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.1));
+            color: #fbbf24;
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        button.primary {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #0a0a0a;
+            padding: 1.125rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button.primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        button.primary:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        button.primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        button.primary:disabled {
+            background: rgba(100, 100, 100, 0.3);
+            color: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Status */
+        .status {
+            margin-top: 1.5rem;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            font-size: 0.9375rem;
+        }
+
+        .status.error {
+            background: linear-gradient(135deg, rgba(153, 27, 27, 0.2), rgba(127, 29, 29, 0.1));
+            color: #fca5a5;
+            border: 1px solid rgba(252, 165, 165, 0.3);
+        }
+
+        .status.success {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(244, 208, 63, 0.08));
+            color: #f4d03f;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        /* Instructions */
+        .instructions {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(10, 10, 10, 0.4);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .instructions h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+            letter-spacing: 0.02em;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-top: 0.5rem;
+            font-size: 0.9375rem;
+            color: #a8a8a8;
+        }
+
+        /* Color Picker Popup */
+        .color-picker-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(212, 175, 55, 0.3);
+            z-index: 1000;
+            min-width: 320px;
+        }
+
+        .color-picker-popup h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            color: #d4af37;
+            margin-bottom: 1.5rem;
+            font-size: 1.125rem;
+            letter-spacing: 0.02em;
+        }
+
+        .color-picker-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .color-option {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+        }
+
+        .color-option.selected {
+            border-color: #d4af37;
+            box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 5px #d4af37, 0 4px 16px rgba(212, 175, 55, 0.4);
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
     <div id="root"></div>
-    
+
     <script type="text/babel">
-        const { useState, useRef } = React;
+        const { useState, useRef, useEffect, useMemo } = React;
+
+        // Color palette for character highlighting
+        const COLOR_PALETTE = [
+            { name: 'yellow', value: 'yellow', hex: '#fef08a' },
+            { name: 'green', value: 'green', hex: '#86efac' },
+            { name: 'cyan', value: 'cyan', hex: '#67e8f9' },
+            { name: 'magenta', value: 'magenta', hex: '#f0abfc' },
+            { name: 'lightGray', value: 'lightGray', hex: '#d1d5db' },
+            { name: 'red', value: 'red', hex: '#fca5a5' },
+            { name: 'blue', value: 'blue', hex: '#93c5fd' },
+            { name: 'darkGreen', value: 'darkGreen', hex: '#6ee7b7' },
+            { name: 'darkYellow', value: 'darkYellow', hex: '#fde047' },
+            { name: 'darkRed', value: 'darkRed', hex: '#f87171' },
+            { name: 'darkBlue', value: 'darkBlue', hex: '#60a5fa' },
+            { name: 'darkCyan', value: 'darkCyan', hex: '#22d3ee' },
+        ];
 
         function App() {
             const [file, setFile] = useState(null);
             const [characters, setCharacters] = useState([]);
-            const [selectedCharacter, setSelectedCharacter] = useState('');
-            const [highlightColor, setHighlightColor] = useState('yellow');
             const [processing, setProcessing] = useState(false);
             const [status, setStatus] = useState('');
             const [statusType, setStatusType] = useState('success');
             const [isDragging, setIsDragging] = useState(false);
+            const [uiMode, setUiMode] = useState('pills'); // 'pills' or 'table'
+            const [searchQuery, setSearchQuery] = useState('');
+            const [colorPickerOpen, setColorPickerOpen] = useState(null);
             const fileInputRef = useRef(null);
+
+            // Load UI mode preference from localStorage
+            useEffect(() => {
+                const savedMode = localStorage.getItem('uiMode');
+                if (savedMode) setUiMode(savedMode);
+            }, []);
+
+            // Save UI mode preference
+            const setAndSaveUiMode = (mode) => {
+                setUiMode(mode);
+                localStorage.setItem('uiMode', mode);
+            };
+
+            // Load saved color preferences
+            const getSavedColor = (characterName) => {
+                const saved = localStorage.getItem(`color_${characterName}`);
+                return saved || null;
+            };
+
+            // Save color preference
+            const saveColorPreference = (characterName, color) => {
+                localStorage.setItem(`color_${characterName}`, color);
+            };
 
             const parseDocx = async (file) => {
                 setProcessing(true);
-                setStatus('Reading document...');
+                setStatus('Reading document and counting character lines...');
                 setStatusType('success');
-                
+
                 try {
                     const arrayBuffer = await file.arrayBuffer();
                     const zip = await JSZip.loadAsync(arrayBuffer);
                     const xmlContent = await zip.file('word/document.xml').async('string');
-                    
-                    // Parse XML to find character names
+
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
-                    const textNodes = xmlDoc.getElementsByTagName('w:t');
-                    
-                    const foundCharacters = new Set();
-                    for (let i = 0; i < textNodes.length; i++) {
-                        const text = textNodes[i].textContent.trim();
-                        // Look for character names (ALL CAPS, short length, common script format)
-                        if (text.match(/^[A-Z][A-Z\s']+$/) && text.length > 2 && text.length < 50) {
-                            // Remove common script elements
-                            const cleaned = text.replace(/\s*\(CONT'?D\)\s*/gi, '').trim();
+                    const paragraphs = xmlDoc.getElementsByTagName('w:p');
+
+                    // Track character names and line counts
+                    const characterData = new Map();
+                    let currentCharacter = null;
+
+                    for (let i = 0; i < paragraphs.length; i++) {
+                        const para = paragraphs[i];
+                        const textNodes = para.getElementsByTagName('w:t');
+                        let paraText = '';
+                        for (let j = 0; j < textNodes.length; j++) {
+                            paraText += textNodes[j].textContent;
+                        }
+
+                        const trimmedText = paraText.trim();
+
+                        // Check if this is a character name (ALL CAPS format)
+                        if (trimmedText.match(/^[A-Z][A-Z\s']+$/) && trimmedText.length > 2 && trimmedText.length < 50) {
+                            const cleaned = trimmedText.replace(/\s*\(CONT'?D\)\s*/gi, '').trim();
                             if (cleaned.length > 2) {
-                                foundCharacters.add(cleaned);
+                                currentCharacter = cleaned;
+                                if (!characterData.has(cleaned)) {
+                                    characterData.set(cleaned, { name: cleaned, lineCount: 0 });
+                                }
+                                characterData.get(cleaned).lineCount++;
+                            }
+                        } else if (currentCharacter && trimmedText.length > 0) {
+                            // Count dialogue lines
+                            const isOtherCharacter = trimmedText.match(/^[A-Z][A-Z\s']+$/) && trimmedText.length > 2;
+                            if (!isOtherCharacter) {
+                                characterData.get(currentCharacter).lineCount++;
+                            } else {
+                                currentCharacter = null;
                             }
                         }
                     }
-                    
-                    const sortedCharacters = Array.from(foundCharacters).sort();
-                    setCharacters(sortedCharacters);
-                    setStatus(`Found ${sortedCharacters.length} potential characters`);
+
+                    // Convert to array and assign colors
+                    const charactersArray = Array.from(characterData.values()).sort((a, b) =>
+                        a.name.localeCompare(b.name)
+                    );
+
+                    // Assign colors (auto or from localStorage)
+                    let colorIndex = 0;
+                    const charactersWithColors = charactersArray.map(char => {
+                        const savedColor = getSavedColor(char.name);
+                        const color = savedColor || COLOR_PALETTE[colorIndex % COLOR_PALETTE.length].value;
+                        if (!savedColor) colorIndex++;
+
+                        return {
+                            ...char,
+                            color: color,
+                            isSelected: false
+                        };
+                    });
+
+                    setCharacters(charactersWithColors);
+                    setStatus(`Found ${charactersWithColors.length} characters`);
                     setStatusType('success');
                     setProcessing(false);
                 } catch (error) {
@@ -107,6 +695,8 @@
             const processFile = (uploadedFile) => {
                 if (uploadedFile && uploadedFile.name.endsWith('.docx')) {
                     setFile(uploadedFile);
+                    setCharacters([]);
+                    setSearchQuery('');
                     parseDocx(uploadedFile);
                 } else {
                     setStatus('Please upload a .docx file');
@@ -140,7 +730,6 @@
                 e.preventDefault();
                 e.stopPropagation();
                 setIsDragging(false);
-
                 const droppedFile = e.dataTransfer.files[0];
                 processFile(droppedFile);
             };
@@ -149,9 +738,71 @@
                 fileInputRef.current.click();
             };
 
-            const highlightCharacter = async () => {
-                if (!file || !selectedCharacter) {
-                    setStatus('Please select a file and character');
+            const toggleCharacter = (characterName) => {
+                setCharacters(prev => prev.map(char =>
+                    char.name === characterName
+                        ? { ...char, isSelected: !char.isSelected }
+                        : char
+                ));
+            };
+
+            const changeCharacterColor = (characterName, newColor) => {
+                setCharacters(prev => prev.map(char =>
+                    char.name === characterName
+                        ? { ...char, color: newColor }
+                        : char
+                ));
+                saveColorPreference(characterName, newColor);
+            };
+
+            const selectAll = () => {
+                setCharacters(prev => prev.map(char => ({ ...char, isSelected: true })));
+            };
+
+            const clearAll = () => {
+                setCharacters(prev => prev.map(char => ({ ...char, isSelected: false })));
+            };
+
+            const resetColors = () => {
+                characters.forEach(char => {
+                    localStorage.removeItem(`color_${char.name}`);
+                });
+                // Reassign default colors
+                setCharacters(prev => prev.map((char, index) => ({
+                    ...char,
+                    color: COLOR_PALETTE[index % COLOR_PALETTE.length].value
+                })));
+            };
+
+            // Filtered characters based on search
+            const filteredCharacters = useMemo(() => {
+                if (!searchQuery) return characters;
+                return characters.filter(char =>
+                    char.name.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }, [characters, searchQuery]);
+
+            // Selected characters
+            const selectedCharacters = useMemo(() =>
+                characters.filter(char => char.isSelected),
+                [characters]
+            );
+
+            // Check for color conflicts
+            const colorConflicts = useMemo(() => {
+                const colorMap = new Map();
+                selectedCharacters.forEach(char => {
+                    if (!colorMap.has(char.color)) {
+                        colorMap.set(char.color, []);
+                    }
+                    colorMap.get(char.color).push(char.name);
+                });
+                return Array.from(colorMap.values()).filter(chars => chars.length > 1);
+            }, [selectedCharacters]);
+
+            const highlightCharacters = async () => {
+                if (!file || selectedCharacters.length === 0) {
+                    setStatus('Please select at least one character');
                     setStatusType('error');
                     return;
                 }
@@ -164,15 +815,16 @@
                     const arrayBuffer = await file.arrayBuffer();
                     const zip = await JSZip.loadAsync(arrayBuffer);
                     const xmlContent = await zip.file('word/document.xml').async('string');
-                    
+
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
                     const paragraphs = xmlDoc.getElementsByTagName('w:p');
-                    
-                    let inCharacterSection = false;
-                    let highlightedCount = 0;
-                    
-                    // Iterate through paragraphs to find and highlight character dialogue
+
+                    // Map to track which character we're currently in
+                    const characterCounts = new Map(selectedCharacters.map(c => [c.name, 0]));
+                    let currentCharacter = null;
+
+                    // Process each paragraph
                     for (let i = 0; i < paragraphs.length; i++) {
                         const para = paragraphs[i];
                         const textNodes = para.getElementsByTagName('w:t');
@@ -180,53 +832,60 @@
                         for (let j = 0; j < textNodes.length; j++) {
                             paraText += textNodes[j].textContent;
                         }
-                        
+
                         const trimmedText = paraText.trim();
-                        
-                        // Check if this is the selected character's name
-                        const isCharacterName = trimmedText.includes(selectedCharacter) && 
-                                              trimmedText.length < 50 &&
-                                              trimmedText.match(/^[A-Z]/);
-                        
-                        // Check if this is a different character's name
-                        const isOtherCharacter = !isCharacterName && 
-                                                trimmedText.match(/^[A-Z][A-Z\s']+$/) && 
-                                                trimmedText.length > 2 && 
-                                                trimmedText.length < 50;
-                        
-                        if (isCharacterName) {
-                            inCharacterSection = true;
-                            addHighlightToParagraph(para, xmlDoc, highlightColor);
-                            highlightedCount++;
-                        } else if (isOtherCharacter) {
-                            inCharacterSection = false;
-                        } else if (inCharacterSection && trimmedText.length > 0) {
-                            addHighlightToParagraph(para, xmlDoc, highlightColor);
-                            highlightedCount++;
+
+                        // Check if this paragraph is a character name
+                        const matchedChar = selectedCharacters.find(char =>
+                            trimmedText.includes(char.name) &&
+                            trimmedText.length < 50 &&
+                            trimmedText.match(/^[A-Z]/)
+                        );
+
+                        // Check if this is ANY character name (to know when to stop)
+                        const isAnyCharacter = trimmedText.match(/^[A-Z][A-Z\s']+$/) &&
+                                             trimmedText.length > 2 &&
+                                             trimmedText.length < 50;
+
+                        if (matchedChar) {
+                            currentCharacter = matchedChar;
+                            addHighlightToParagraph(para, xmlDoc, matchedChar.color);
+                            characterCounts.set(matchedChar.name, characterCounts.get(matchedChar.name) + 1);
+                        } else if (isAnyCharacter) {
+                            currentCharacter = null;
+                        } else if (currentCharacter && trimmedText.length > 0) {
+                            addHighlightToParagraph(para, xmlDoc, currentCharacter.color);
+                            characterCounts.set(currentCharacter.name, characterCounts.get(currentCharacter.name) + 1);
                         }
                     }
-                    
-                    // Serialize the modified XML
+
+                    // Serialize and save
                     const serializer = new XMLSerializer();
                     const modifiedXml = serializer.serializeToString(xmlDoc);
-                    
-                    // Update the zip file
                     zip.file('word/document.xml', modifiedXml);
-                    
-                    // Generate the new .docx file
+
                     const blob = await zip.generateAsync({ type: 'blob' });
-                    
-                    // Download the file
+
+                    // Download
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = file.name.replace('.docx', `_${selectedCharacter}_highlighted.docx`);
+
+                    // Create filename with character names (truncate if too long)
+                    const charNames = selectedCharacters.map(c => c.name).join('_');
+                    const truncatedNames = charNames.length > 50 ? charNames.substring(0, 47) + '...' : charNames;
+                    a.download = file.name.replace('.docx', `_${truncatedNames}_highlighted.docx`);
+
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                    
-                    setStatus(`Successfully highlighted ${highlightedCount} paragraphs for ${selectedCharacter}`);
+
+                    // Success message
+                    const summary = Array.from(characterCounts.entries())
+                        .map(([name, count]) => `${name} (${count} lines)`)
+                        .join(', ');
+                    setStatus(`✓ Highlighted: ${summary}`);
                     setStatusType('success');
                     setProcessing(false);
                 } catch (error) {
@@ -238,11 +897,11 @@
 
             const addHighlightToParagraph = (para, xmlDoc, color) => {
                 const runs = para.getElementsByTagName('w:r');
-                
+
                 for (let i = 0; i < runs.length; i++) {
                     const run = runs[i];
                     let rPr = run.getElementsByTagName('w:rPr')[0];
-                    
+
                     if (!rPr) {
                         rPr = xmlDoc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rPr');
                         if (run.firstChild) {
@@ -251,8 +910,7 @@
                             run.appendChild(rPr);
                         }
                     }
-                    
-                    // Check if highlight already exists
+
                     const existingHighlight = rPr.getElementsByTagName('w:highlight')[0];
                     if (!existingHighlight) {
                         const highlight = xmlDoc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:highlight');
@@ -267,11 +925,12 @@
                     <div className="container">
                         <div className="card">
                             <h1>Script Character Highlighter</h1>
-                            <p className="subtitle">Upload a script and highlight a character's dialogue</p>
-                            
+                            <p className="subtitle">Upload a script and highlight multiple characters' dialogue</p>
+
+                            {/* File Upload */}
                             <div className="form-group">
                                 <label>Upload Script (.docx)</label>
-                                <div 
+                                <div
                                     className={`dropzone ${isDragging ? 'drag-over' : ''}`}
                                     onDragEnter={handleDragEnter}
                                     onDragOver={handleDragOver}
@@ -299,59 +958,210 @@
                                 )}
                             </div>
 
+                            {/* Character Selection */}
                             {characters.length > 0 && (
-                                <div className="form-group">
-                                    <label>Select Character</label>
-                                    <select
-                                        value={selectedCharacter}
-                                        onChange={(e) => setSelectedCharacter(e.target.value)}
-                                    >
-                                        <option value="">-- Choose a character --</option>
-                                        {characters.map(char => (
-                                            <option key={char} value={char}>{char}</option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <>
+                                    {/* UI Mode Toggle */}
+                                    <div className="ui-toggle">
+                                        <button
+                                            className={uiMode === 'pills' ? 'active' : ''}
+                                            onClick={() => setAndSaveUiMode('pills')}
+                                        >
+                                            Pills View
+                                        </button>
+                                        <button
+                                            className={uiMode === 'table' ? 'active' : ''}
+                                            onClick={() => setAndSaveUiMode('table')}
+                                        >
+                                            Table View
+                                        </button>
+                                    </div>
+
+                                    {/* Search and Actions */}
+                                    <div className="search-actions">
+                                        <input
+                                            type="text"
+                                            className="search-box"
+                                            placeholder="Search characters..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                        />
+                                        <button className="action-btn" onClick={selectAll}>
+                                            Select All
+                                        </button>
+                                        <button className="action-btn" onClick={clearAll}>
+                                            Clear All
+                                        </button>
+                                        <button className="action-btn" onClick={resetColors}>
+                                            Reset Colors
+                                        </button>
+                                    </div>
+
+                                    {/* Pills View (Prototype A) */}
+                                    {uiMode === 'pills' && (
+                                        <div className="character-pills">
+                                            {filteredCharacters.map(char => {
+                                                const colorHex = COLOR_PALETTE.find(c => c.value === char.color)?.hex || '#d1d5db';
+                                                return (
+                                                    <div
+                                                        key={char.name}
+                                                        className={`character-pill ${char.isSelected ? 'selected' : ''}`}
+                                                        style={{ color: char.isSelected ? colorHex : '#1f2937' }}
+                                                        onClick={() => toggleCharacter(char.name)}
+                                                    >
+                                                        <div className="pill-name">{char.name}</div>
+                                                        <div className="pill-count">{char.lineCount} lines</div>
+                                                        {char.isSelected && (
+                                                            <div
+                                                                className="pill-color"
+                                                                style={{ backgroundColor: colorHex }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setColorPickerOpen(char.name);
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+
+                                    {/* Table View (Prototype B) */}
+                                    {uiMode === 'table' && (
+                                        <table className="character-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style={{ width: '40px' }}></th>
+                                                    <th>Character</th>
+                                                    <th style={{ width: '100px' }}>Lines</th>
+                                                    <th style={{ width: '150px' }}>Color</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {filteredCharacters.map(char => (
+                                                    <tr key={char.name}>
+                                                        <td>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={char.isSelected}
+                                                                onChange={() => toggleCharacter(char.name)}
+                                                            />
+                                                        </td>
+                                                        <td style={{ fontWeight: 600 }}>{char.name}</td>
+                                                        <td>{char.lineCount}</td>
+                                                        <td>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                                <span
+                                                                    className="color-swatch"
+                                                                    style={{ backgroundColor: COLOR_PALETTE.find(c => c.value === char.color)?.hex || '#d1d5db' }}
+                                                                />
+                                                                <select
+                                                                    className="color-select"
+                                                                    value={char.color}
+                                                                    onChange={(e) => changeCharacterColor(char.name, e.target.value)}
+                                                                    disabled={!char.isSelected}
+                                                                >
+                                                                    {COLOR_PALETTE.map(colorOption => (
+                                                                        <option key={colorOption.value} value={colorOption.value}>
+                                                                            {colorOption.name}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    )}
+
+                                    {/* Selection Summary */}
+                                    {selectedCharacters.length > 0 && (
+                                        <div className="selection-summary">
+                                            <span className="summary-text">
+                                                {selectedCharacters.map(c => c.name).join(', ')}
+                                            </span>
+                                            <span className="summary-badge">
+                                                {selectedCharacters.length} selected
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Color Conflict Warning */}
+                                    {colorConflicts.length > 0 && (
+                                        <div className="color-warning">
+                                            ⚠️ Warning: Multiple characters share the same color: {colorConflicts.map(chars => chars.join(', ')).join(' | ')}
+                                        </div>
+                                    )}
+                                </>
                             )}
 
-                            <div className="form-group">
-                                <label>Highlight Color</label>
-                                <select
-                                    value={highlightColor}
-                                    onChange={(e) => setHighlightColor(e.target.value)}
-                                >
-                                    <option value="yellow">Yellow</option>
-                                    <option value="green">Green</option>
-                                    <option value="cyan">Cyan</option>
-                                    <option value="magenta">Magenta</option>
-                                    <option value="lightGray">Light Gray</option>
-                                </select>
-                            </div>
-
+                            {/* Process Button */}
                             <button
-                                onClick={highlightCharacter}
-                                disabled={!file || !selectedCharacter || processing}
+                                className="primary"
+                                onClick={highlightCharacters}
+                                disabled={!file || selectedCharacters.length === 0 || processing}
                             >
-                                {processing ? 'Processing...' : 'Highlight & Download'}
+                                {processing ? 'Processing...' : `Highlight ${selectedCharacters.length || ''} Character${selectedCharacters.length !== 1 ? 's' : ''} & Download`}
                             </button>
 
+                            {/* Status */}
                             {status && (
                                 <div className={`status ${statusType}`}>
                                     {status}
                                 </div>
                             )}
 
+                            {/* Instructions */}
                             <div className="instructions">
                                 <h3>How to use:</h3>
                                 <ol>
                                     <li>Upload your script file (must be .docx format)</li>
-                                    <li>Select the character whose dialogue you want to highlight</li>
-                                    <li>Choose a highlight color</li>
-                                    <li>Click "Highlight & Download" to get your highlighted script</li>
+                                    <li>Toggle between Pills or Table view (your preference is saved)</li>
+                                    <li>Search and select the characters you want to highlight</li>
+                                    <li>Customize colors by clicking the color dot (Pills) or color picker (Table)</li>
+                                    <li>Click "Highlight & Download" to get your multi-colored script</li>
                                 </ol>
                             </div>
                         </div>
                     </div>
+
+                    {/* Color Picker Popup */}
+                    {colorPickerOpen && (
+                        <>
+                            <div className="color-picker-overlay" onClick={() => setColorPickerOpen(null)} />
+                            <div className="color-picker-popup">
+                                <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem', fontWeight: 600 }}>
+                                    Choose Color for {colorPickerOpen}
+                                </h3>
+                                <div className="color-grid">
+                                    {COLOR_PALETTE.map(colorOption => {
+                                        const currentChar = characters.find(c => c.name === colorPickerOpen);
+                                        const isSelected = currentChar?.color === colorOption.value;
+                                        return (
+                                            <div
+                                                key={colorOption.value}
+                                                className={`color-option ${isSelected ? 'selected' : ''}`}
+                                                style={{ backgroundColor: colorOption.hex }}
+                                                onClick={() => {
+                                                    changeCharacterColor(colorPickerOpen, colorOption.value);
+                                                    setColorPickerOpen(null);
+                                                }}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                                <button
+                                    className="primary"
+                                    onClick={() => setColorPickerOpen(null)}
+                                    style={{ marginTop: '0.5rem' }}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             );
         }
