@@ -1,27 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Script Character Highlighter</title>
+
+    <!-- CDN Scripts -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
+        /* CSS Reset */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0a0a0a 100%);
-            min-height: 100vh;
-            color: #e8e8e8;
+        /* Design System */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #1a1a1a;
+            --accent-gold: #d4af37;
+            --accent-gold-light: #f4d03f;
+            --text-primary: #e5e7eb;
+            --text-secondary: #a8a8a8;
+            --border-gold: rgba(212, 175, 55, 0.2);
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, var(--bg-primary) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        /* Layout Styles */
         .container {
-            max-width: 64rem;
+            max-width: 900px;
             margin: 0 auto;
             padding: 3rem 2rem;
         }
@@ -31,7 +50,7 @@
             border-radius: 1rem;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(212, 175, 55, 0.2);
             padding: 3rem;
-            border: 1px solid rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--border-gold);
             position: relative;
             overflow: hidden;
         }
@@ -43,29 +62,32 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #d4af37, #f4d03f, #d4af37);
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-light), var(--accent-gold));
             opacity: 0.8;
         }
 
         h1 {
-            font-family: 'Playfair Display', Georgia, serif;
+            font-family: var(--font-display);
             font-size: 3rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%);
+            background: linear-gradient(135deg, var(--accent-gold-light) 0%, var(--accent-gold) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 0.75rem;
             letter-spacing: -0.02em;
+            cursor: pointer;
         }
 
         .subtitle {
-            color: #a8a8a8;
+            color: var(--text-secondary);
             font-size: 1.125rem;
             margin-bottom: 2.5rem;
             font-weight: 400;
             letter-spacing: 0.01em;
         }
+
+        /* Component Styles */
         .form-group {
             margin-bottom: 2rem;
         }
@@ -74,15 +96,14 @@
             display: block;
             font-size: 0.875rem;
             font-weight: 600;
-            color: #d4af37;
+            color: var(--accent-gold);
             margin-bottom: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        /* Dropzone */
         .dropzone {
-            border: 2px dashed rgba(212, 175, 55, 0.3);
+            border: 2px dashed var(--border-gold);
             border-radius: 0.75rem;
             padding: 3rem;
             text-align: center;
@@ -100,7 +121,7 @@
         }
 
         .dropzone.drag-over {
-            border-color: #d4af37;
+            border-color: var(--accent-gold);
             background: rgba(212, 175, 55, 0.1);
             box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
         }
@@ -118,7 +139,7 @@
         }
 
         .dropzone-text strong {
-            color: #d4af37;
+            color: var(--accent-gold);
             font-weight: 600;
         }
 
@@ -127,15 +148,16 @@
             padding: 1rem;
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
             border-radius: 0.5rem;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            color: #f4d03f;
+            border: 1px solid var(--border-gold);
+            color: var(--accent-gold-light);
             font-size: 0.875rem;
             font-weight: 500;
         }
 
-        input[type="file"] { display: none; }
+        input[type="file"] {
+            display: none;
+        }
 
-        /* Feature Flag Toggle */
         .ui-toggle {
             display: flex;
             gap: 0.5rem;
@@ -143,7 +165,7 @@
             background: rgba(10, 10, 10, 0.6);
             border-radius: 0.75rem;
             margin-bottom: 2rem;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--border-gold);
         }
 
         .ui-toggle button {
@@ -163,11 +185,10 @@
 
         .ui-toggle button.active {
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(244, 208, 63, 0.15));
-            color: #f4d03f;
+            color: var(--accent-gold-light);
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
-        /* Search and Actions */
         .search-actions {
             display: flex;
             gap: 0.75rem;
@@ -179,11 +200,11 @@
             flex: 1;
             min-width: 200px;
             padding: 0.75rem 1rem;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--border-gold);
             border-radius: 0.5rem;
             font-size: 0.875rem;
             background: rgba(10, 10, 10, 0.5);
-            color: #e8e8e8;
+            color: var(--text-primary);
             transition: all 0.3s;
         }
 
@@ -193,7 +214,7 @@
 
         .search-box:focus {
             outline: none;
-            border-color: #d4af37;
+            border-color: var(--accent-gold);
             background: rgba(10, 10, 10, 0.7);
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
         }
@@ -205,7 +226,7 @@
             border-radius: 0.5rem;
             font-size: 0.8125rem;
             font-weight: 600;
-            color: #d4af37;
+            color: var(--accent-gold);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
@@ -215,12 +236,11 @@
 
         .action-btn:hover {
             background: rgba(212, 175, 55, 0.1);
-            border-color: #d4af37;
+            border-color: var(--accent-gold);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
         }
 
-        /* Character Pills (Prototype A) */
         .character-pills {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -231,7 +251,7 @@
         .character-pill {
             position: relative;
             padding: 1.25rem 1.5rem;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--border-gold);
             border-radius: 0.75rem;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -255,7 +275,7 @@
         .pill-name {
             font-size: 1rem;
             font-weight: 700;
-            color: #e8e8e8;
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
             letter-spacing: 0.02em;
         }
@@ -284,7 +304,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
         }
 
-        /* Character Table (Prototype B) */
         .character-table {
             width: 100%;
             border-collapse: collapse;
@@ -292,7 +311,7 @@
             font-size: 0.875rem;
             border-radius: 0.75rem;
             overflow: hidden;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--border-gold);
         }
 
         .character-table th {
@@ -301,7 +320,7 @@
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.08));
             border-bottom: 2px solid rgba(212, 175, 55, 0.3);
             font-weight: 700;
-            color: #d4af37;
+            color: var(--accent-gold);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-size: 0.75rem;
@@ -311,7 +330,7 @@
             padding: 1rem;
             border-bottom: 1px solid rgba(212, 175, 55, 0.1);
             background: rgba(26, 26, 26, 0.3);
-            color: #e8e8e8;
+            color: var(--text-primary);
         }
 
         .character-table tr:hover td {
@@ -322,7 +341,7 @@
             width: 1.125rem;
             height: 1.125rem;
             cursor: pointer;
-            accent-color: #d4af37;
+            accent-color: var(--accent-gold);
         }
 
         .character-table select.color-select {
@@ -332,13 +351,13 @@
             cursor: pointer;
             font-size: 0.8125rem;
             background: rgba(10, 10, 10, 0.5);
-            color: #d4af37;
+            color: var(--accent-gold);
             font-weight: 500;
             transition: all 0.3s;
         }
 
         .character-table select.color-select:hover:not(:disabled) {
-            border-color: #d4af37;
+            border-color: var(--accent-gold);
             background: rgba(10, 10, 10, 0.7);
         }
 
@@ -357,7 +376,6 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
-        /* Selection Summary */
         .selection-summary {
             display: flex;
             align-items: center;
@@ -372,14 +390,14 @@
         .summary-text {
             font-size: 0.9375rem;
             font-weight: 600;
-            color: #f4d03f;
+            color: var(--accent-gold-light);
             letter-spacing: 0.01em;
         }
 
         .summary-badge {
             padding: 0.375rem 1rem;
-            background: linear-gradient(135deg, #d4af37, #f4d03f);
-            color: #0a0a0a;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+            color: var(--bg-primary);
             border-radius: 2rem;
             font-size: 0.8125rem;
             font-weight: 700;
@@ -399,11 +417,10 @@
             font-weight: 500;
         }
 
-        /* Buttons */
         button.primary {
             width: 100%;
-            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
-            color: #0a0a0a;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-light) 100%);
+            color: var(--bg-primary);
             padding: 1.125rem 2rem;
             border: none;
             border-radius: 0.75rem;
@@ -445,7 +462,6 @@
             box-shadow: none;
         }
 
-        /* Status */
         .status {
             margin-top: 1.5rem;
             padding: 1.25rem 1.5rem;
@@ -462,23 +478,22 @@
 
         .status.success {
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(244, 208, 63, 0.08));
-            color: #f4d03f;
+            color: var(--accent-gold-light);
             border: 1px solid rgba(212, 175, 55, 0.3);
         }
 
-        /* Instructions */
         .instructions {
             margin-top: 3rem;
             padding: 2rem;
             background: rgba(10, 10, 10, 0.4);
             border-radius: 0.75rem;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--border-gold);
         }
 
         .instructions h3 {
-            font-family: 'Playfair Display', Georgia, serif;
+            font-family: var(--font-display);
             font-weight: 600;
-            color: #d4af37;
+            color: var(--accent-gold);
             margin-bottom: 1rem;
             font-size: 1.125rem;
             letter-spacing: 0.02em;
@@ -492,10 +507,20 @@
         .instructions li {
             margin-top: 0.5rem;
             font-size: 0.9375rem;
-            color: #a8a8a8;
+            color: var(--text-secondary);
         }
 
-        /* Color Picker Popup */
+        .color-picker-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+        }
+
         .color-picker-popup {
             position: fixed;
             top: 50%;
@@ -510,22 +535,11 @@
         }
 
         .color-picker-popup h3 {
-            font-family: 'Playfair Display', Georgia, serif;
-            color: #d4af37;
+            font-family: var(--font-display);
+            color: var(--accent-gold);
             margin-bottom: 1.5rem;
             font-size: 1.125rem;
             letter-spacing: 0.02em;
-        }
-
-        .color-picker-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(4px);
-            z-index: 999;
         }
 
         .color-grid {
@@ -551,622 +565,1896 @@
         }
 
         .color-option.selected {
-            border-color: #d4af37;
-            box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 5px #d4af37, 0 4px 16px rgba(212, 175, 55, 0.4);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 5px var(--accent-gold), 0 4px 16px rgba(212, 175, 55, 0.4);
         }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useRef, useEffect, useMemo } = React;
+                #debug-error, #test-results {
 
-        // Color palette for character highlighting
-        const COLOR_PALETTE = [
-            { name: 'yellow', value: 'yellow', hex: '#fef08a' },
-            { name: 'green', value: 'green', hex: '#86efac' },
-            { name: 'cyan', value: 'cyan', hex: '#67e8f9' },
-            { name: 'magenta', value: 'magenta', hex: '#f0abfc' },
-            { name: 'lightGray', value: 'lightGray', hex: '#d1d5db' },
-            { name: 'red', value: 'red', hex: '#fca5a5' },
-            { name: 'blue', value: 'blue', hex: '#93c5fd' },
-            { name: 'darkGreen', value: 'darkGreen', hex: '#6ee7b7' },
-            { name: 'darkYellow', value: 'darkYellow', hex: '#fde047' },
-            { name: 'darkRed', value: 'darkRed', hex: '#f87171' },
-            { name: 'darkBlue', value: 'darkBlue', hex: '#60a5fa' },
-            { name: 'darkCyan', value: 'darkCyan', hex: '#22d3ee' },
-        ];
+                    position: fixed;
 
-        function App() {
-            const [file, setFile] = useState(null);
-            const [characters, setCharacters] = useState([]);
-            const [processing, setProcessing] = useState(false);
-            const [status, setStatus] = useState('');
-            const [statusType, setStatusType] = useState('success');
-            const [isDragging, setIsDragging] = useState(false);
-            const [uiMode, setUiMode] = useState('pills'); // 'pills' or 'table'
-            const [searchQuery, setSearchQuery] = useState('');
-            const [colorPickerOpen, setColorPickerOpen] = useState(null);
-            const fileInputRef = useRef(null);
+                    bottom: 0;
 
-            // Load UI mode preference from localStorage
-            useEffect(() => {
-                const savedMode = localStorage.getItem('uiMode');
-                if (savedMode) setUiMode(savedMode);
-            }, []);
+                    left: 0;
 
-            // Save UI mode preference
-            const setAndSaveUiMode = (mode) => {
-                setUiMode(mode);
-                localStorage.setItem('uiMode', mode);
-            };
+                    right: 0;
 
-            // Load saved color preferences
-            const getSavedColor = (characterName) => {
-                const saved = localStorage.getItem(`color_${characterName}`);
-                return saved || null;
-            };
+                    background: #111;
 
-            // Save color preference
-            const saveColorPreference = (characterName, color) => {
-                localStorage.setItem(`color_${characterName}`, color);
-            };
+                    color: #ff8a8a;
 
-            const parseDocx = async (file) => {
-                setProcessing(true);
-                setStatus('Reading document and counting character lines...');
-                setStatusType('success');
+                    padding: 1rem;
 
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const zip = await JSZip.loadAsync(arrayBuffer);
-                    const xmlContent = await zip.file('word/document.xml').async('string');
+                    border-top: 2px solid #ff5252;
 
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
-                    const paragraphs = xmlDoc.getElementsByTagName('w:p');
+                    z-index: 9999;
 
-                    // Track character names and line counts
-                    const characterData = new Map();
-                    let currentCharacter = null;
+                    font-family: monospace;
 
-                    for (let i = 0; i < paragraphs.length; i++) {
-                        const para = paragraphs[i];
-                        const textNodes = para.getElementsByTagName('w:t');
-                        let paraText = '';
-                        for (let j = 0; j < textNodes.length; j++) {
-                            paraText += textNodes[j].textContent;
-                        }
+                    max-height: 30vh;
 
-                        const trimmedText = paraText.trim();
+                    overflow-y: auto;
 
-                        // Check if this is a character name (ALL CAPS format)
-                        if (trimmedText.match(/^[A-Z][A-Z\s']+$/) && trimmedText.length > 2 && trimmedText.length < 50) {
-                            const cleaned = trimmedText.replace(/\s*\(CONT'?D\)\s*/gi, '').trim();
-                            if (cleaned.length > 2) {
-                                currentCharacter = cleaned;
-                                if (!characterData.has(cleaned)) {
-                                    characterData.set(cleaned, { name: cleaned, lineCount: 0 });
-                                }
-                                characterData.get(cleaned).lineCount++;
-                            }
-                        } else if (currentCharacter && trimmedText.length > 0) {
-                            // Count dialogue lines
-                            const isOtherCharacter = trimmedText.match(/^[A-Z][A-Z\s']+$/) && trimmedText.length > 2;
-                            if (!isOtherCharacter) {
-                                characterData.get(currentCharacter).lineCount++;
-                            } else {
-                                currentCharacter = null;
-                            }
-                        }
+                }
+
+        
+
+                .preview-overlay {
+
+                    position: fixed;
+
+                    top: 0;
+
+                    left: 0;
+
+                    right: 0;
+
+                    bottom: 0;
+
+                    background: rgba(0, 0, 0, 0.85);
+
+                    backdrop-filter: blur(8px);
+
+                    z-index: 1999;
+
+                    display: flex;
+
+                    align-items: center;
+
+                    justify-content: center;
+
+                }
+
+        
+
+                .preview-panel {
+
+                    background: #1c1c1c;
+
+                    border-radius: 1rem;
+
+                    border: 1px solid var(--border-gold);
+
+                    width: 90%;
+
+                    max-width: 800px;
+
+                    height: 85vh;
+
+                    display: flex;
+
+                    flex-direction: column;
+
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+
+                }
+
+        
+
+                .preview-header {
+
+                    padding: 1rem 1.5rem;
+
+                    border-bottom: 1px solid var(--border-gold);
+
+                    display: flex;
+
+                    justify-content: space-between;
+
+                    align-items: center;
+
+                }
+
+                
+
+                .preview-header h3 {
+
+                    font-family: var(--font-display);
+
+                    color: var(--accent-gold);
+
+                    font-weight: 600;
+
+                }
+
+        
+
+                .preview-close-btn {
+
+                    padding: 0.5rem 1rem;
+
+                    background: rgba(212, 175, 55, 0.1);
+
+                    border: 1px solid var(--border-gold);
+
+                    color: var(--accent-gold-light);
+
+                    border-radius: 0.5rem;
+
+                    cursor: pointer;
+
+                    transition: all 0.3s;
+
+                }
+
+        
+
+                .preview-close-btn:hover {
+
+                    background: rgba(212, 175, 55, 0.2);
+
+                    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+
+                }
+
+        
+
+                .preview-content {
+
+                    padding: 1.5rem 2rem;
+
+                    overflow-y: auto;
+
+                    font-family: 'Courier New', Courier, monospace;
+
+                    line-height: 1.5;
+
+                    color: #e0e0e0;
+
+                    flex-grow: 1;
+
+                }
+
+        
+
+                .preview-line {
+
+                    white-space: pre-wrap;
+
+                    margin-bottom: 1em;
+
+                }
+
+                .preview-line.SCENE_HEADING {
+
+                    font-weight: bold;
+
+                    text-transform: uppercase;
+
+                    margin-top: 2em;
+
+                }
+
+                .preview-line.ACTION {
+
+                    margin-left: 0;
+
+                }
+
+                .preview-line.CHARACTER {
+
+                    margin-left: 20%;
+
+                    text-transform: uppercase;
+
+                }
+
+                .preview-line.DIALOGUE {
+
+                    margin-left: 10%;
+
+                    margin-right: 10%;
+
+                }
+
+                .preview-line.PARENTHETICAL {
+
+                    margin-left: 15%;
+
+                }
+
+                .preview-line span.highlight {
+
+                    padding: 0.1em 0;
+
+                    border-radius: 2px;
+
+                    color: #000;
+
+                }
+
+        
+
+            </style>
+
+        </head>
+
+        
+
+        <body>
+
+            <div id="debug-error" style="display:none;"></div>
+
+            <div id="test-results" style="display:none;"></div>
+
+        
+
+                <script>
+
+        
+
+                    // Global error handlers
+
+        
+
+                    const debugErrorDiv = document.getElementById('debug-error');
+
+        
+
+                    window.onerror = function (msg, url, line, col, error) {
+
+        
+
+                        const errorMsg = `Error: ${msg} in ${url} at line ${line}:${col}`;
+
+        
+
+                        debugErrorDiv.textContent += errorMsg + '\n';
+
+        
+
+                        debugErrorDiv.style.display = 'block';
+
+        
+
+                        return false;
+
+        
+
+                    };
+
+        
+
+                    console.error = (function (old) {
+
+        
+
+                        return function (...args) {
+
+        
+
+                            old.apply(console, args);
+
+        
+
+                            const errorMsg = args.map(arg => 
+
+        
+
+                                (typeof arg === 'object' && arg !== null) ? JSON.stringify(arg, null, 2) : arg
+
+        
+
+                            ).join(' ');
+
+        
+
+                            debugErrorDiv.textContent += errorMsg + '\n';
+
+        
+
+                            debugErrorDiv.style.display = 'block';
+
+        
+
+                        };
+
+        
+
+                    })(console.error);
+
+        
+
+            
+
+        
+
+                    // --- SCRIPT PARSING ENGINE V4 ---
+
+        
+
+            
+
+        
+
+                    function normalizeCharacterName(text) {
+
+        
+
+                        // Removes parentheticals like (V.O.) or (CONT'D) from a character name.
+
+        
+
+                        return text.replace(/\s*\([^)]*\)\s*$/g, '').replace(/\s*\(CONT'D\)\s*$/g, '').trim();
+
+        
+
                     }
 
-                    // Convert to array and assign colors
-                    const charactersArray = Array.from(characterData.values()).sort((a, b) =>
-                        a.name.localeCompare(b.name)
+        
+
+            
+
+        
+
+                    class ScreenplayParser {
+
+        
+
+                        constructor({ debug = false } = {}) {
+
+        
+
+                            this.debug = debug;
+
+        
+
+                        }
+
+        
+
+            
+
+        
+
+                        log(...args) {
+
+        
+
+                            if (this.debug) {
+
+        
+
+                                console.log('[Parser]', ...args);
+
+        
+
+                            }
+
+        
+
+                        }
+
+        
+
+            
+
+        
+
+                        _getStyleMap(stylesXml) {
+
+        
+
+                            // Reads styles.xml and creates a map of styleId -> {name, indent, isCaps}
+
+        
+
+                            const styleMap = new Map();
+
+        
+
+                            if (!stylesXml) return styleMap;
+
+        
+
+                            const styles = stylesXml.getElementsByTagName('w:style');
+
+        
+
+                            for (const style of styles) {
+
+        
+
+                                if (style.getAttribute('w:type') === 'paragraph') {
+
+        
+
+                                    const styleId = style.getAttribute('w:styleId');
+
+        
+
+                                    const styleNameEl = style.getElementsByTagName('w:name')[0];
+
+        
+
+                                    const styleName = styleNameEl ? styleNameEl.getAttribute('w:val') : '';
+
+        
+
+                                    
+
+        
+
+                                    let indent = 0;
+
+        
+
+                                    const indentEl = style.getElementsByTagName('w:ind')[0];
+
+        
+
+                                    if (indentEl) {
+
+        
+
+                                        indent = parseInt(indentEl.getAttribute('w:left') || '0', 10);
+
+        
+
+                                    }
+
+        
+
+                                    
+
+        
+
+                                    const capsEl = style.getElementsByTagName('w:caps')[0];
+
+        
+
+                                    const isCaps = !!capsEl;
+
+        
+
+            
+
+        
+
+                                    styleMap.set(styleId, { name: styleName, indent, isCaps });
+
+        
+
+                                }
+
+        
+
+                            }
+
+        
+
+                            this.log('Built Style Map with ' + styleMap.size + ' paragraph styles.');
+
+        
+
+                            return styleMap;
+
+        
+
+                        }
+
+        
+
+            
+
+        
+
+                        _getParagraphs(documentXml) {
+
+        
+
+                            // Reads document.xml and returns an array of paragraph objects.
+
+        
+
+                            const paragraphs = [];
+
+        
+
+                            const paraEls = documentXml.getElementsByTagName('w:p');
+
+        
+
+                            for (const paraEl of paraEls) {
+
+        
+
+                                const text = Array.from(paraEl.getElementsByTagName('w:t')).map(t => t.textContent).join('').trim();
+
+        
+
+                                if (!text) continue;
+
+        
+
+            
+
+        
+
+                                let styleId = 'Normal';
+
+        
+
+                                const styleEl = paraEl.getElementsByTagName('w:pStyle')[0];
+
+        
+
+                                if (styleEl) {
+
+        
+
+                                    styleId = styleEl.getAttribute('w:val');
+
+        
+
+                                }
+
+        
+
+                                paragraphs.push({ text, styleId, para: paraEl });
+
+        
+
+                            }
+
+        
+
+                            return paragraphs;
+
+        
+
+                        }
+
+        
+
+            
+
+        
+
+                        parse(documentXml, stylesXml) {
+
+        
+
+                            const styleMap = this._getStyleMap(stylesXml);
+
+        
+
+                            const paragraphs = this._getParagraphs(documentXml);
+
+        
+
+            
+
+        
+
+                            const parasByStyle = new Map();
+
+        
+
+                            for (const p of paragraphs) {
+
+        
+
+                                if (!parasByStyle.has(p.styleId)) {
+
+        
+
+                                    parasByStyle.set(p.styleId, []);
+
+        
+
+                                }
+
+        
+
+                                parasByStyle.get(p.styleId).push(p.text);
+
+        
+
+                            }
+
+        
+
+            
+
+        
+
+                            const styleAnalysis = [];
+
+        
+
+                            for (const [styleId, texts] of parasByStyle.entries()) {
+
+        
+
+                                const style = styleMap.get(styleId);
+
+        
+
+                                if (!style) continue;
+
+        
+
+            
+
+        
+
+                                const avgLen = texts.reduce((acc, t) => acc + t.length, 0) / texts.length;
+
+        
+
+                                const capsRatio = texts.reduce((acc, t) => {
+
+        
+
+                                    const upper = (t.match(/[A-Z]/g) || []).length;
+
+        
+
+                                    const letters = (t.match(/[a-zA-Z]/g) || []).length;
+
+        
+
+                                    return acc + (letters > 1 ? upper / letters : 0);
+
+        
+
+                                }, 0) / texts.length;
+
+        
+
+            
+
+        
+
+                                styleAnalysis.push({ styleId, indent: style.indent, avgLen, capsRatio, isCaps: style.isCaps, count: texts.length });
+
+        
+
+                            }
+
+        
+
+                            
+
+        
+
+                            this.log('Style Analysis:', styleAnalysis);
+
+        
+
+            
+
+        
+
+                            if (styleAnalysis.length < 2) {
+
+        
+
+                                this.log("Not enough styles to analyze. Aborting.");
+
+        
+
+                                return [];
+
+        
+
+                            }
+
+        
+
+            
+
+        
+
+                            const sortedByIndent = styleAnalysis.sort((a, b) => a.indent - b.indent);
+
+        
+
+                            
+
+        
+
+                            const actionStyle = sortedByIndent[0];
+
+        
+
+            
+
+        
+
+                            const charCandidates = sortedByIndent.slice(1).sort((a, b) => {
+
+        
+
+                                const scoreA = (a.capsRatio * 2) - (a.avgLen / 100) + (a.indent / 1000);
+
+        
+
+                                const scoreB = (b.capsRatio * 2) - (b.avgLen / 100) + (b.indent / 1000);
+
+        
+
+                                return scoreB - scoreA;
+
+        
+
+                            });
+
+        
+
+                            const characterStyle = charCandidates[0];
+
+        
+
+            
+
+        
+
+                            const dialogueCandidates = sortedByIndent.filter(s => s.indent > actionStyle.indent && s.indent < characterStyle.indent);
+
+        
+
+                            const dialogueStyle = dialogueCandidates.length > 0 ? dialogueCandidates.sort((a,b) => b.count - a.count)[0] : actionStyle;
+
+        
+
+            
+
+        
+
+                            const elementStyleIds = {
+
+        
+
+                                ACTION: actionStyle.styleId,
+
+        
+
+                                CHARACTER: characterStyle.styleId,
+
+        
+
+                                DIALOGUE: dialogueStyle.styleId,
+
+        
+
+                            };
+
+        
+
+                            this.log('Determined Element Styles:', elementStyleIds);
+
+        
+
+            
+
+        
+
+                            const results = [];
+
+        
+
+                            let currentCharacter = null;
+
+        
+
+                            for (const p of paragraphs) {
+
+        
+
+                                let type = 'ACTION';
+
+        
+
+                                
+
+        
+
+                                if (p.styleId === elementStyleIds.CHARACTER) {
+
+        
+
+                                    type = 'CHARACTER';
+
+        
+
+                                    currentCharacter = normalizeCharacterName(p.text);
+
+        
+
+                                } else if (p.styleId === elementStyleIds.DIALOGUE) {
+
+        
+
+                                    type = 'DIALOGUE';
+
+        
+
+                                } else if (p.text.startsWith('(') && p.text.endsWith(')')) {
+
+        
+
+                                    type = 'PARENTHETICAL';
+
+        
+
+                                }
+
+        
+
+                                
+
+        
+
+                                if (/^(INT\.?\/EXT\.?|INT\.?|EXT\.?|I\/E)\s/.test(p.text) || /\s-\s(DAY|NIGHT|CONTINUOUS)$/.test(p.text)) {
+
+        
+
+                                    type = 'SCENE_HEADING';
+
+        
+
+                                    currentCharacter = null;
+
+        
+
+                                }
+
+        
+
+            
+
+        
+
+                                results.push({
+
+        
+
+                                    type,
+
+        
+
+                                    text: p.text,
+
+        
+
+                                    para: p.para,
+
+        
+
+                                    character: (type === 'DIALOGUE' || type === 'PARENTHETICAL') ? currentCharacter : null
+
+        
+
+                                });
+
+        
+
+                            }
+
+        
+
+                            return results;
+
+        
+
+                        }
+
+        
+
+                    }
+
+        
+
+            
+
+        
+
+                    function runTestHarness() {
+
+        
+
+                        const resultsDiv = document.getElementById('test-results');
+
+        
+
+                        resultsDiv.innerHTML = '<h3>Test Harness Disabled</h3><p>The style-based parser requires a full DOCX file context to run tests.</p>';
+
+        
+
+                        resultsDiv.style.display = 'block';
+
+        
+
+                    }
+
+        
+
+                </script>
+
+        
+
+            <div id="root"></div>
+
+        
+
+            <script type="text/babel">
+
+                const { useState, useRef, useEffect, useMemo } = React;
+
+        
+
+                const COLOR_PALETTE = [
+
+                    { name: 'yellow', value: 'yellow', hex: '#fef08a' },
+
+                    { name: 'green', value: 'green', hex: '#86efac' },
+
+                    { name: 'cyan', value: 'cyan', hex: '#67e8f9' },
+
+                    { name: 'magenta', value: 'magenta', hex: '#f0abfc' },
+
+                    { name: 'lightGray', value: 'lightGray', hex: '#d1d5db' },
+
+                    { name: 'red', value: 'red', hex: '#fca5a5' },
+
+                    { name: 'blue', value: 'blue', hex: '#93c5fd' },
+
+                    { name: 'darkGreen', value: 'darkGreen', hex: '#6ee7b7' },
+
+                    { name: 'darkYellow', value: 'darkYellow', hex: '#fde047' },
+
+                    { name: 'darkRed', value: 'darkRed', hex: '#f87171' },
+
+                    { name: 'darkBlue', value: 'darkBlue', hex: '#60a5fa' },
+
+                    { name: 'darkCyan', value: 'darkCyan', hex: '#22d3ee' },
+
+                ];
+
+        
+
+                function PreviewPanel({ lines, characters, colors, onClose }) {
+
+                    return (
+
+                        <div className="preview-overlay" onClick={onClose}>
+
+                            <div className="preview-panel" onClick={e => e.stopPropagation()}>
+
+                                <div className="preview-header">
+
+                                    <h3>Script Preview</h3>
+
+                                    <button className="preview-close-btn" onClick={onClose}>Close</button>
+
+                                </div>
+
+                                <div className="preview-content">
+
+                                    {lines.map((line, index) => {
+
+                                        const matchedChar = (line.type === 'DIALOGUE' || line.type === 'PARENTHETICAL') 
+
+                                            ? characters.find(c => c.name === line.character) 
+
+                                            : null;
+
+                                        
+
+                                        const style = {};
+
+                                        if (matchedChar) {
+
+                                            const colorHex = colors.find(c => c.value === matchedChar.color)?.hex;
+
+                                            if (colorHex) {
+
+                                                style.backgroundColor = colorHex;
+
+                                            }
+
+                                        }
+
+        
+
+                                        return (
+
+                                            <div key={index} className={`preview-line ${line.type}`}>
+
+                                                {matchedChar 
+
+                                                    ? <span className="highlight" style={style}>{line.text}</span>
+
+                                                    : line.text
+
+                                                }
+
+                                            </div>
+
+                                        );
+
+                                    })}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     );
 
-                    // Assign colors (auto or from localStorage)
-                    let colorIndex = 0;
-                    const charactersWithColors = charactersArray.map(char => {
-                        const savedColor = getSavedColor(char.name);
-                        const color = savedColor || COLOR_PALETTE[colorIndex % COLOR_PALETTE.length].value;
-                        if (!savedColor) colorIndex++;
-
-                        return {
-                            ...char,
-                            color: color,
-                            isSelected: false
-                        };
-                    });
-
-                    setCharacters(charactersWithColors);
-                    setStatus(`Found ${charactersWithColors.length} characters`);
-                    setStatusType('success');
-                    setProcessing(false);
-                } catch (error) {
-                    setStatus(`Error reading file: ${error.message}`);
-                    setStatusType('error');
-                    setProcessing(false);
-                }
-            };
-
-            const processFile = (uploadedFile) => {
-                if (uploadedFile && uploadedFile.name.endsWith('.docx')) {
-                    setFile(uploadedFile);
-                    setCharacters([]);
-                    setSearchQuery('');
-                    parseDocx(uploadedFile);
-                } else {
-                    setStatus('Please upload a .docx file');
-                    setStatusType('error');
-                }
-            };
-
-            const handleFileUpload = (e) => {
-                const uploadedFile = e.target.files[0];
-                processFile(uploadedFile);
-            };
-
-            const handleDragEnter = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsDragging(true);
-            };
-
-            const handleDragLeave = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsDragging(false);
-            };
-
-            const handleDragOver = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            };
-
-            const handleDrop = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsDragging(false);
-                const droppedFile = e.dataTransfer.files[0];
-                processFile(droppedFile);
-            };
-
-            const handleDropzoneClick = () => {
-                fileInputRef.current.click();
-            };
-
-            const toggleCharacter = (characterName) => {
-                setCharacters(prev => prev.map(char =>
-                    char.name === characterName
-                        ? { ...char, isSelected: !char.isSelected }
-                        : char
-                ));
-            };
-
-            const changeCharacterColor = (characterName, newColor) => {
-                setCharacters(prev => prev.map(char =>
-                    char.name === characterName
-                        ? { ...char, color: newColor }
-                        : char
-                ));
-                saveColorPreference(characterName, newColor);
-            };
-
-            const selectAll = () => {
-                setCharacters(prev => prev.map(char => ({ ...char, isSelected: true })));
-            };
-
-            const clearAll = () => {
-                setCharacters(prev => prev.map(char => ({ ...char, isSelected: false })));
-            };
-
-            const resetColors = () => {
-                characters.forEach(char => {
-                    localStorage.removeItem(`color_${char.name}`);
-                });
-                // Reassign default colors
-                setCharacters(prev => prev.map((char, index) => ({
-                    ...char,
-                    color: COLOR_PALETTE[index % COLOR_PALETTE.length].value
-                })));
-            };
-
-            // Filtered characters based on search
-            const filteredCharacters = useMemo(() => {
-                if (!searchQuery) return characters;
-                return characters.filter(char =>
-                    char.name.toLowerCase().includes(searchQuery.toLowerCase())
-                );
-            }, [characters, searchQuery]);
-
-            // Selected characters
-            const selectedCharacters = useMemo(() =>
-                characters.filter(char => char.isSelected),
-                [characters]
-            );
-
-            // Check for color conflicts
-            const colorConflicts = useMemo(() => {
-                const colorMap = new Map();
-                selectedCharacters.forEach(char => {
-                    if (!colorMap.has(char.color)) {
-                        colorMap.set(char.color, []);
-                    }
-                    colorMap.get(char.color).push(char.name);
-                });
-                return Array.from(colorMap.values()).filter(chars => chars.length > 1);
-            }, [selectedCharacters]);
-
-            const highlightCharacters = async () => {
-                if (!file || selectedCharacters.length === 0) {
-                    setStatus('Please select at least one character');
-                    setStatusType('error');
-                    return;
                 }
 
-                setProcessing(true);
-                setStatus('Processing document...');
-                setStatusType('success');
+        
 
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const zip = await JSZip.loadAsync(arrayBuffer);
-                    const xmlContent = await zip.file('word/document.xml').async('string');
+                function App() {
 
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
-                    const paragraphs = xmlDoc.getElementsByTagName('w:p');
+                    const [file, setFile] = useState(null);
 
-                    // Map to track which character we're currently in
-                    const characterCounts = new Map(selectedCharacters.map(c => [c.name, 0]));
-                    let currentCharacter = null;
+                    const [characters, setCharacters] = useState([]);
 
-                    // Process each paragraph
-                    for (let i = 0; i < paragraphs.length; i++) {
-                        const para = paragraphs[i];
-                        const textNodes = para.getElementsByTagName('w:t');
-                        let paraText = '';
-                        for (let j = 0; j < textNodes.length; j++) {
-                            paraText += textNodes[j].textContent;
-                        }
+                    const [processing, setProcessing] = useState(false);
 
-                        const trimmedText = paraText.trim();
+                    const [status, setStatus] = useState('');
 
-                        // Check if this paragraph is a character name
-                        const matchedChar = selectedCharacters.find(char =>
-                            trimmedText.includes(char.name) &&
-                            trimmedText.length < 50 &&
-                            trimmedText.match(/^[A-Z]/)
-                        );
+                    const [statusType, setStatusType] = useState('success');
 
-                        // Check if this is ANY character name (to know when to stop)
-                        const isAnyCharacter = trimmedText.match(/^[A-Z][A-Z\s']+$/) &&
-                                             trimmedText.length > 2 &&
-                                             trimmedText.length < 50;
+                    const [isDragging, setIsDragging] = useState(false);
 
-                        if (matchedChar) {
-                            currentCharacter = matchedChar;
-                            addHighlightToParagraph(para, xmlDoc, matchedChar.color);
-                            characterCounts.set(matchedChar.name, characterCounts.get(matchedChar.name) + 1);
-                        } else if (isAnyCharacter) {
-                            currentCharacter = null;
-                        } else if (currentCharacter && trimmedText.length > 0) {
-                            addHighlightToParagraph(para, xmlDoc, currentCharacter.color);
-                            characterCounts.set(currentCharacter.name, characterCounts.get(currentCharacter.name) + 1);
-                        }
-                    }
+                    const [uiMode, setUiMode] = useState('pills');
 
-                    // Serialize and save
-                    const serializer = new XMLSerializer();
-                    const modifiedXml = serializer.serializeToString(xmlDoc);
-                    zip.file('word/document.xml', modifiedXml);
+                    const [searchQuery, setSearchQuery] = useState('');
 
-                    const blob = await zip.generateAsync({ type: 'blob' });
+                    const [colorPickerOpen, setColorPickerOpen] = useState(null);
 
-                    // Download
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
+                    const [parsedLines, setParsedLines] = useState([]);
 
-                    // Create filename with character names (truncate if too long)
-                    const charNames = selectedCharacters.map(c => c.name).join('_');
-                    const truncatedNames = charNames.length > 50 ? charNames.substring(0, 47) + '...' : charNames;
-                    a.download = file.name.replace('.docx', `_${truncatedNames}_highlighted.docx`);
+                    const [isPreviewVisible, setIsPreviewVisible] = useState(false);
 
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                    const fileInputRef = useRef(null);
 
-                    // Success message
-                    const summary = Array.from(characterCounts.entries())
-                        .map(([name, count]) => `${name} (${count} lines)`)
-                        .join(', ');
-                    setStatus(`✓ Highlighted: ${summary}`);
-                    setStatusType('success');
-                    setProcessing(false);
-                } catch (error) {
-                    setStatus(`Error processing file: ${error.message}`);
-                    setStatusType('error');
-                    setProcessing(false);
-                }
-            };
+        
 
-            const addHighlightToParagraph = (para, xmlDoc, color) => {
-                const runs = para.getElementsByTagName('w:r');
+                    useEffect(() => {
 
-                for (let i = 0; i < runs.length; i++) {
-                    const run = runs[i];
-                    let rPr = run.getElementsByTagName('w:rPr')[0];
+                        const savedMode = localStorage.getItem('uiMode');
 
-                    if (!rPr) {
-                        rPr = xmlDoc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rPr');
-                        if (run.firstChild) {
-                            run.insertBefore(rPr, run.firstChild);
+                        if (savedMode) setUiMode(savedMode);
+
+                    }, []);
+
+        
+
+                    const getSavedColor = (characterName) => localStorage.getItem(`color_${characterName}`) || null;
+
+                    const saveColorPreference = (characterName, color) => localStorage.setItem(`color_${characterName}`, color);
+
+        
+
+                    const setAndSaveUiMode = (mode) => {
+
+                        setUiMode(mode);
+
+                        localStorage.setItem('uiMode', mode);
+
+                    };
+
+        
+
+                                        const parseDocx = async (file) => {
+
+        
+
+                                            setProcessing(true);
+
+        
+
+                                            setStatus('Reading document and analyzing styles...');
+
+        
+
+                                            setStatusType('success');
+
+        
+
+                                            setParsedLines([]);
+
+        
+
+                    
+
+        
+
+                                            try {
+
+        
+
+                                                const arrayBuffer = await file.arrayBuffer();
+
+        
+
+                                                const zip = await JSZip.loadAsync(arrayBuffer);
+
+        
+
+                                                
+
+        
+
+                                                const domParser = new DOMParser();
+
+        
+
+                                                
+
+        
+
+                                                const documentXmlString = await zip.file('word/document.xml').async('string');
+
+        
+
+                                                const documentXml = domParser.parseFromString(documentXmlString, 'text/xml');
+
+        
+
+                                                
+
+        
+
+                                                let stylesXml = null;
+
+        
+
+                                                const stylesFile = zip.file('word/styles.xml');
+
+        
+
+                                                if (stylesFile) {
+
+        
+
+                                                    const stylesXmlString = await stylesFile.async('string');
+
+        
+
+                                                    stylesXml = domParser.parseFromString(stylesXmlString, 'text/xml');
+
+        
+
+                                                }
+
+        
+
+                    
+
+        
+
+                                                const screenplayParser = new ScreenplayParser({ debug: true });
+
+        
+
+                                                const lines = screenplayParser.parse(documentXml, stylesXml);
+
+        
+
+                                                setParsedLines(lines);
+
+        
+
+                    
+
+        
+
+                                                const characterData = new Map();
+
+        
+
+                                                lines.forEach(line => {
+
+        
+
+                                                    if (line.type === 'CHARACTER') {
+
+        
+
+                                                         const charName = normalizeCharacterName(line.text);
+
+        
+
+                                                         if (charName && !characterData.has(charName)) {
+
+        
+
+                                                            characterData.set(charName, { name: charName, lineCount: 0 });
+
+        
+
+                                                        }
+
+        
+
+                                                    } else if (line.type === 'DIALOGUE' && line.character) {
+
+        
+
+                                                        if (characterData.has(line.character)) {
+
+        
+
+                                                            characterData.get(line.character).lineCount++;
+
+        
+
+                                                        }
+
+        
+
+                                                    }
+
+        
+
+                                                });
+
+        
+
+                    
+
+        
+
+                                                const charactersArray = Array.from(characterData.values()).filter(c => c.name).sort((a, b) => a.name.localeCompare(b.name));
+
+        
+
+                                                let colorIndex = 0;
+
+        
+
+                                                const charactersWithColors = charactersArray.map(char => {
+
+        
+
+                                                    const savedColor = getSavedColor(char.name);
+
+        
+
+                                                    const color = savedColor || COLOR_PALETTE[colorIndex % COLOR_PALETTE.length].value;
+
+        
+
+                                                    if (!savedColor) colorIndex++;
+
+        
+
+                                                    return { ...char, color, isSelected: false };
+
+        
+
+                                                });
+
+        
+
+                    
+
+        
+
+                                                setCharacters(charactersWithColors);
+
+        
+
+                                                setStatus(`Found ${charactersWithColors.length} characters.`);
+
+        
+
+                                                setStatusType('success');
+
+        
+
+                                            } catch (error) {
+
+        
+
+                                                console.error(error);
+
+        
+
+                                                setStatus(`Error reading file: ${error.message}`);
+
+        
+
+                                                setStatusType('error');
+
+        
+
+                                            } finally {
+
+        
+
+                                                setProcessing(false);
+
+        
+
+                                            }
+
+        
+
+                                        };
+
+        
+
+                    const processFile = (uploadedFile) => {
+
+                        if (uploadedFile && uploadedFile.name.endsWith('.docx')) {
+
+                            setFile(uploadedFile);
+
+                            setCharacters([]);
+
+                            setSearchQuery('');
+
+                            parseDocx(uploadedFile);
+
                         } else {
-                            run.appendChild(rPr);
+
+                            setStatus('Please upload a .docx file');
+
+                            setStatusType('error');
+
                         }
-                    }
 
-                    const existingHighlight = rPr.getElementsByTagName('w:highlight')[0];
-                    if (!existingHighlight) {
-                        const highlight = xmlDoc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:highlight');
-                        highlight.setAttribute('w:val', color);
-                        rPr.appendChild(highlight);
-                    }
-                }
-            };
+                    };
 
-            return (
-                <div style={{ minHeight: '100vh', padding: '2rem' }}>
-                    <div className="container">
-                        <div className="card">
-                            <h1>Script Character Highlighter</h1>
-                            <p className="subtitle">Upload a script and highlight multiple characters' dialogue</p>
+                    
 
-                            {/* File Upload */}
-                            <div className="form-group">
-                                <label>Upload Script (.docx)</label>
-                                <div
-                                    className={`dropzone ${isDragging ? 'drag-over' : ''}`}
-                                    onDragEnter={handleDragEnter}
-                                    onDragOver={handleDragOver}
-                                    onDragLeave={handleDragLeave}
-                                    onDrop={handleDrop}
-                                    onClick={handleDropzoneClick}
-                                >
-                                    <div className="dropzone-icon">📄</div>
-                                    <div className="dropzone-text">
-                                        <strong>Click to upload</strong> or drag and drop
-                                        <br />
-                                        .docx files only
+                    const addHighlightToParagraph = (para, xmlDoc, color) => {
+
+                        const runs = para.getElementsByTagName('w:r');
+
+                        for (let i = 0; i < runs.length; i++) {
+
+                            const run = runs[i];
+
+                            let rPr = run.getElementsByTagName('w:rPr')[0];
+
+                            if (!rPr) {
+
+                                rPr = xmlDoc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rPr');
+
+                                run.insertBefore(rPr, run.firstChild);
+
+                            }
+
+                            const existingHighlight = rPr.getElementsByTagName('w:highlight')[0];
+
+                            if (!existingHighlight) {
+
+                                const highlight = xmlDoc.createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:highlight');
+
+                                highlight.setAttribute('w:val', color);
+
+                                rPr.appendChild(highlight);
+
+                            }
+
+                        }
+
+                    };
+
+        
+
+                    const highlightCharacters = async () => {
+
+                        if (!file || selectedCharacters.length === 0) {
+
+                            setStatus('Please select at least one character');
+
+                            setStatusType('error');
+
+                            return;
+
+                        }
+
+        
+
+                        setProcessing(true);
+
+                        setStatus('Processing document...');
+
+                        setStatusType('success');
+
+        
+
+                        try {
+
+                            const arrayBuffer = await file.arrayBuffer();
+
+                            const zip = await JSZip.loadAsync(arrayBuffer);
+
+                            const xmlContent = await zip.file('word/document.xml').async('string');
+
+                            const parser = new DOMParser();
+
+                            const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+
+        
+
+                            const screenplayParser = new ScreenplayParser();
+
+                            const lines = screenplayParser.parse(xmlDoc);
+
+        
+
+                            let highlightCount = 0;
+
+                            lines.forEach(line => {
+
+                                if ((line.type === 'DIALOGUE' || line.type === 'PARENTHETICAL') && line.character) {
+
+                                    const matchedChar = selectedCharacters.find(c => c.name === line.character);
+
+                                    if (matchedChar) {
+
+                                        addHighlightToParagraph(line.para, xmlDoc, matchedChar.color);
+
+                                        if(line.type === 'DIALOGUE') highlightCount++;
+
+                                    }
+
+                                }
+
+                            });
+
+        
+
+                            const serializer = new XMLSerializer();
+
+                            const modifiedXml = serializer.serializeToString(xmlDoc);
+
+                            zip.file('word/document.xml', modifiedXml);
+
+        
+
+                            const blob = await zip.generateAsync({ type: 'blob' });
+
+                            const url = URL.createObjectURL(blob);
+
+                            const a = document.createElement('a');
+
+                            a.href = url;
+
+                            
+
+                            const charNames = selectedCharacters.map(c => c.name).join('_');
+
+                            const truncatedNames = charNames.length > 50 ? charNames.substring(0, 47) + '...' : charNames;
+
+                            a.download = file.name.replace('.docx', `_${truncatedNames}_highlighted.docx`);
+
+                            
+
+                            document.body.appendChild(a);
+
+                            a.click();
+
+                            document.body.removeChild(a);
+
+                            URL.revokeObjectURL(url);
+
+        
+
+                            setStatus(`✓ Highlighted ${highlightCount} dialogue blocks`);
+
+                            setStatusType('success');
+
+                        } catch (error) {
+
+                            console.error(error);
+
+                            setStatus(`Error processing file: ${error.message}`);
+
+                            setStatusType('error');
+
+                        } finally {
+
+                            setProcessing(false);
+
+                        }
+
+                    };
+
+        
+
+                    const handleFileUpload = (e) => processFile(e.target.files[0]);
+
+                    const handleDragEnter = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
+
+                    const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
+
+                    const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); };
+
+                    const handleDrop = (e) => {
+
+                        e.preventDefault();
+
+                        e.stopPropagation();
+
+                        setIsDragging(false);
+
+                        processFile(e.dataTransfer.files[0]);
+
+                    };
+
+                    const handleDropzoneClick = () => fileInputRef.current.click();
+
+        
+
+                    const toggleCharacter = (name) => setCharacters(prev => prev.map(c => c.name === name ? { ...c, isSelected: !c.isSelected } : c));
+
+                    const changeCharacterColor = (name, color) => {
+
+                        setCharacters(prev => prev.map(c => c.name === name ? { ...c, color } : c));
+
+                        saveColorPreference(name, color);
+
+                    };
+
+                    const selectAll = () => setCharacters(prev => prev.map(c => ({ ...c, isSelected: true })));
+
+                    const clearAll = () => setCharacters(prev => prev.map(c => ({ ...c, isSelected: false })));
+
+                    const resetColors = () => {
+
+                        characters.forEach(char => localStorage.removeItem(`color_${char.name}`));
+
+                        setCharacters(prev => prev.map((char, index) => ({ ...char, color: COLOR_PALETTE[index % COLOR_PALETTE.length].value })));
+
+                    };
+
+        
+
+                    const filteredCharacters = useMemo(() => searchQuery ? characters.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())) : characters, [characters, searchQuery]);
+
+                    const selectedCharacters = useMemo(() => characters.filter(c => c.isSelected), [characters]);
+
+                    const colorConflicts = useMemo(() => {
+
+                        const map = new Map();
+
+                        selectedCharacters.forEach(c => {
+
+                            if (!map.has(c.color)) map.set(c.color, []);
+
+                            map.get(c.color).push(c.name);
+
+                        });
+
+                        return Array.from(map.values()).filter(chars => chars.length > 1);
+
+                    }, [selectedCharacters]);
+
+        
+
+                    return (
+
+                        <div className="container">
+
+                            <div className="card">
+
+                                <h1 onClick={runTestHarness}>Script Character Highlighter</h1>
+
+                                <p className="subtitle">Upload a script, select characters, and download a highlighted version.</p>
+
+        
+
+                                <div className="form-group">
+
+                                    <label>Upload Script (.docx)</label>
+
+                                    <div className={`dropzone ${isDragging ? 'drag-over' : ''}`} onDragEnter={handleDragEnter} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} onClick={handleDropzoneClick}>
+
+                                        <div className="dropzone-icon">📄</div>
+
+                                        <div className="dropzone-text"><strong>Click to upload</strong> or drag and drop</div>
+
                                     </div>
+
+                                    <input ref={fileInputRef} type="file" accept=".docx" onChange={handleFileUpload} />
+
+                                    {file && <div className="file-info">✓ {file.name}</div>}
+
                                 </div>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept=".docx"
-                                    onChange={handleFileUpload}
-                                />
-                                {file && (
-                                    <div className="file-info">
-                                        ✓ {file.name}
-                                    </div>
-                                )}
-                            </div>
 
-                            {/* Character Selection */}
-                            {characters.length > 0 && (
-                                <>
-                                    {/* UI Mode Toggle */}
-                                    <div className="ui-toggle">
-                                        <button
-                                            className={uiMode === 'pills' ? 'active' : ''}
-                                            onClick={() => setAndSaveUiMode('pills')}
-                                        >
-                                            Pills View
-                                        </button>
-                                        <button
-                                            className={uiMode === 'table' ? 'active' : ''}
-                                            onClick={() => setAndSaveUiMode('table')}
-                                        >
-                                            Table View
-                                        </button>
-                                    </div>
+        
 
-                                    {/* Search and Actions */}
-                                    <div className="search-actions">
-                                        <input
-                                            type="text"
-                                            className="search-box"
-                                            placeholder="Search characters..."
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                        />
-                                        <button className="action-btn" onClick={selectAll}>
-                                            Select All
-                                        </button>
-                                        <button className="action-btn" onClick={clearAll}>
-                                            Clear All
-                                        </button>
-                                        <button className="action-btn" onClick={resetColors}>
-                                            Reset Colors
-                                        </button>
-                                    </div>
+                                {characters.length > 0 && (
 
-                                    {/* Pills View (Prototype A) */}
-                                    {uiMode === 'pills' && (
-                                        <div className="character-pills">
-                                            {filteredCharacters.map(char => {
-                                                const colorHex = COLOR_PALETTE.find(c => c.value === char.color)?.hex || '#d1d5db';
-                                                return (
-                                                    <div
-                                                        key={char.name}
-                                                        className={`character-pill ${char.isSelected ? 'selected' : ''}`}
-                                                        style={{ color: char.isSelected ? colorHex : '#1f2937' }}
-                                                        onClick={() => toggleCharacter(char.name)}
-                                                    >
-                                                        <div className="pill-name">{char.name}</div>
-                                                        <div className="pill-count">{char.lineCount} lines</div>
-                                                        {char.isSelected && (
-                                                            <div
-                                                                className="pill-color"
-                                                                style={{ backgroundColor: colorHex }}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setColorPickerOpen(char.name);
-                                                                }}
-                                                            />
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
+                                    <>
+
+                                        <div className="ui-toggle">
+
+                                            <button className={uiMode === 'pills' ? 'active' : ''} onClick={() => setAndSaveUiMode('pills')}>Pills View</button>
+
+                                            <button className={uiMode === 'table' ? 'active' : ''} onClick={() => setAndSaveUiMode('table')}>Table View</button>
+
                                         </div>
-                                    )}
 
-                                    {/* Table View (Prototype B) */}
-                                    {uiMode === 'table' && (
-                                        <table className="character-table">
-                                            <thead>
-                                                <tr>
-                                                    <th style={{ width: '40px' }}></th>
-                                                    <th>Character</th>
-                                                    <th style={{ width: '100px' }}>Lines</th>
-                                                    <th style={{ width: '150px' }}>Color</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {filteredCharacters.map(char => (
-                                                    <tr key={char.name}>
-                                                        <td>
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={char.isSelected}
-                                                                onChange={() => toggleCharacter(char.name)}
-                                                            />
-                                                        </td>
-                                                        <td style={{ fontWeight: 600 }}>{char.name}</td>
-                                                        <td>{char.lineCount}</td>
-                                                        <td>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                                <span
-                                                                    className="color-swatch"
-                                                                    style={{ backgroundColor: COLOR_PALETTE.find(c => c.value === char.color)?.hex || '#d1d5db' }}
-                                                                />
-                                                                <select
-                                                                    className="color-select"
-                                                                    value={char.color}
-                                                                    onChange={(e) => changeCharacterColor(char.name, e.target.value)}
-                                                                    disabled={!char.isSelected}
-                                                                >
-                                                                    {COLOR_PALETTE.map(colorOption => (
-                                                                        <option key={colorOption.value} value={colorOption.value}>
-                                                                            {colorOption.name}
-                                                                        </option>
-                                                                    ))}
-                                                                </select>
-                                                            </div>
-                                                        </td>
+        
+
+                                        <div className="search-actions">
+
+                                            <input type="text" className="search-box" placeholder="Search characters..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+
+                                            <button className="action-btn" onClick={selectAll}>Select All</button>
+
+                                            <button className="action-btn" onClick={clearAll}>Clear All</button>
+
+                                            <button className="action-btn" onClick={resetColors}>Reset Colors</button>
+
+                                        </div>
+
+        
+
+                                        {uiMode === 'pills' ? (
+
+                                            <div className="character-pills">
+
+                                                {filteredCharacters.map(char => {
+
+                                                    const colorHex = COLOR_PALETTE.find(c => c.value === char.color)?.hex || '#d1d5db';
+
+                                                    return (
+
+                                                        <div key={char.name} className={`character-pill ${char.isSelected ? 'selected' : ''}`} style={{ color: char.isSelected ? colorHex : 'transparent' }} onClick={() => toggleCharacter(char.name)}>
+
+                                                            <div className="pill-name">{char.name}</div>
+
+                                                            <div className="pill-count">{char.lineCount} lines</div>
+
+                                                            {char.isSelected && <div className="pill-color" style={{ backgroundColor: colorHex }} onClick={(e) => { e.stopPropagation(); setColorPickerOpen(char.name); }} />}
+
+                                                        </div>
+
+                                                    );
+
+                                                })}
+
+                                            </div>
+
+                                        ) : (
+
+                                            <table className="character-table">
+
+                                                <thead>
+
+                                                    <tr>
+
+                                                        <th style={{ width: '40px' }}></th>
+
+                                                        <th>Character</th>
+
+                                                        <th style={{ width: '100px' }}>Lines</th>
+
+                                                        <th style={{ width: '150px' }}>Color</th>
+
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    )}
 
-                                    {/* Selection Summary */}
-                                    {selectedCharacters.length > 0 && (
-                                        <div className="selection-summary">
-                                            <span className="summary-text">
-                                                {selectedCharacters.map(c => c.name).join(', ')}
-                                            </span>
-                                            <span className="summary-badge">
-                                                {selectedCharacters.length} selected
-                                            </span>
-                                        </div>
-                                    )}
+                                                </thead>
 
-                                    {/* Color Conflict Warning */}
-                                    {colorConflicts.length > 0 && (
-                                        <div className="color-warning">
-                                            ⚠️ Warning: Multiple characters share the same color: {colorConflicts.map(chars => chars.join(', ')).join(' | ')}
+                                                <tbody>
+
+                                                    {filteredCharacters.map(char => (
+
+                                                        <tr key={char.name}>
+
+                                                            <td><input type="checkbox" checked={char.isSelected} onChange={() => toggleCharacter(char.name)} /></td>
+
+                                                            <td style={{ fontWeight: 600 }}>{char.name}</td>
+
+                                                            <td>{char.lineCount}</td>
+
+                                                            <td>
+
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+
+                                                                    <span className="color-swatch" style={{ backgroundColor: COLOR_PALETTE.find(c => c.value === char.color)?.hex || '#d1d5db' }} />
+
+                                                                    <select className="color-select" value={char.color} onChange={(e) => changeCharacterColor(char.name, e.target.value)} disabled={!char.isSelected}>
+
+                                                                        {COLOR_PALETTE.map(opt => <option key={opt.value} value={opt.value}>{opt.name}</option>)}
+
+                                                                    </select>
+
+                                                                </div>
+
+                                                            </td>
+
+                                                        </tr>
+
+                                                    ))}
+
+                                                </tbody>
+
+                                            </table>
+
+                                        )}
+
+        
+
+                                        {selectedCharacters.length > 0 && (
+
+                                            <div className="selection-summary">
+
+                                                <span className="summary-text">{selectedCharacters.map(c => c.name).join(', ')}</span>
+
+                                                <span className="summary-badge">{selectedCharacters.length} selected</span>
+
+                                            </div>
+
+                                        )}
+
+        
+
+                                        {colorConflicts.length > 0 && (
+
+                                            <div className="color-warning">
+
+                                                ⚠️ Warning: Multiple characters share the same color: {colorConflicts.map(chars => chars.join(' & ')).join(' | ')}
+
+                                            </div>
+
+                                        )}
+
+                                        
+
+                                        <div style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
+
+                                            <button className="primary" onClick={() => setIsPreviewVisible(true)} disabled={!file || processing}>
+
+                                                Preview
+
+                                            </button>
+
+                                            <button className="primary" onClick={highlightCharacters} disabled={!file || selectedCharacters.length === 0 || processing}>
+
+                                                {processing ? 'Processing...' : `Download`}
+
+                                            </button>
+
                                         </div>
-                                    )}
+
+                                    </>
+
+                                )}
+
+        
+
+                                {characters.length === 0 && file && !processing &&
+
+                                    <div style={{marginTop: '1.5rem'}}>
+
+                                        <button className="primary" onClick={highlightCharacters} disabled={true}>
+
+                                            Highlight & Download
+
+                                        </button>
+
+                                    </div>
+
+                                }
+
+        
+
+        
+
+                                {status && <div className={`status ${statusType}`}>{status}</div>}
+
+        
+
+                                <div className="instructions">
+
+                                    <h3>How to use:</h3>
+
+                                    <ol>
+
+                                        <li>Upload your script file (.docx format).</li>
+
+                                        <li>The app will analyze the script and list all characters.</li>
+
+                                        <li>Select the characters you want to highlight.</li>
+
+                                        <li>Customize colors using the color dot (Pills view) or dropdown (Table view).</li>
+
+                                        <li>Click "Preview" to see the result, or "Download" to get the file.</li>
+
+                                    </ol>
+
+                                </div>
+
+                            </div>
+
+        
+
+                            {colorPickerOpen && (
+
+                                <>
+
+                                    <div className="color-picker-overlay" onClick={() => setColorPickerOpen(null)} />
+
+                                    <div className="color-picker-popup">
+
+                                        <h3>Choose Color for {colorPickerOpen}</h3>
+
+                                        <div className="color-grid">
+
+                                            {COLOR_PALETTE.map(opt => (
+
+                                                <div key={opt.value} className={`color-option ${characters.find(c => c.name === colorPickerOpen)?.color === opt.value ? 'selected' : ''}`} style={{ backgroundColor: opt.hex }} onClick={() => { changeCharacterColor(colorPickerOpen, opt.value); setColorPickerOpen(null); }} />
+
+                                            ))}
+
+                                        </div>
+
+                                    </div>
+
                                 </>
+
                             )}
 
-                            {/* Process Button */}
-                            <button
-                                className="primary"
-                                onClick={highlightCharacters}
-                                disabled={!file || selectedCharacters.length === 0 || processing}
-                            >
-                                {processing ? 'Processing...' : `Highlight ${selectedCharacters.length || ''} Character${selectedCharacters.length !== 1 ? 's' : ''} & Download`}
-                            </button>
+        
 
-                            {/* Status */}
-                            {status && (
-                                <div className={`status ${statusType}`}>
-                                    {status}
-                                </div>
+                            {isPreviewVisible && (
+
+                                <PreviewPanel 
+
+                                    lines={parsedLines}
+
+                                    characters={selectedCharacters}
+
+                                    colors={COLOR_PALETTE}
+
+                                    onClose={() => setIsPreviewVisible(false)}
+
+                                />
+
                             )}
 
-                            {/* Instructions */}
-                            <div className="instructions">
-                                <h3>How to use:</h3>
-                                <ol>
-                                    <li>Upload your script file (must be .docx format)</li>
-                                    <li>Toggle between Pills or Table view (your preference is saved)</li>
-                                    <li>Search and select the characters you want to highlight</li>
-                                    <li>Customize colors by clicking the color dot (Pills) or color picker (Table)</li>
-                                    <li>Click "Highlight & Download" to get your multi-colored script</li>
-                                </ol>
-                            </div>
                         </div>
-                    </div>
 
-                    {/* Color Picker Popup */}
-                    {colorPickerOpen && (
-                        <>
-                            <div className="color-picker-overlay" onClick={() => setColorPickerOpen(null)} />
-                            <div className="color-picker-popup">
-                                <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem', fontWeight: 600 }}>
-                                    Choose Color for {colorPickerOpen}
-                                </h3>
-                                <div className="color-grid">
-                                    {COLOR_PALETTE.map(colorOption => {
-                                        const currentChar = characters.find(c => c.name === colorPickerOpen);
-                                        const isSelected = currentChar?.color === colorOption.value;
-                                        return (
-                                            <div
-                                                key={colorOption.value}
-                                                className={`color-option ${isSelected ? 'selected' : ''}`}
-                                                style={{ backgroundColor: colorOption.hex }}
-                                                onClick={() => {
-                                                    changeCharacterColor(colorPickerOpen, colorOption.value);
-                                                    setColorPickerOpen(null);
-                                                }}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                                <button
-                                    className="primary"
-                                    onClick={() => setColorPickerOpen(null)}
-                                    style={{ marginTop: '0.5rem' }}
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        </>
-                    )}
-                </div>
-            );
-        }
+                    );
 
-        ReactDOM.render(React.createElement(App), document.getElementById('root'));
-    </script>
-</body>
-</html>
+                }
+
+        
+
+                ReactDOM.render(React.createElement(App), document.getElementById('root'));
+
+            </script>
+
+        </body>
+
+        
+
+        </html>
+
+        
